@@ -1,0 +1,47 @@
+-----------------------------------------
+Supported Address Codes:
+-----------------------------------------
+O    :   PROG_NUM
+N    :   LINE_NUM
+G    :   PREP_CMD
+X    :   ABS_X OR DTIS
+P    :   DTIMS
+U    :   INC_DIST_X
+Z    :   ABS_Z
+I    :   ARC_CNTR_X
+J    :   ARC_CNTR_Y
+R    :   RADIUS
+W    :   INC_DIST_Z
+F    :   FEED_RATE
+M    :   MISCLNS_FUNC
+S    :   SPINDLE_SPEED
+T    :   TOOL_MGMT
+
+-----------------------------------------
+Supported G-codes:
+-----------------------------------------
+G00  -   RAPID_TRAVERSE
+G01  -   LINEAR_TRAVERSE
+G02  -   CLK_CRCLR_INTR
+G03  -   C_CLK_CRCLR_INTR
+G04  -   DWELL
+G21  -   INPUT_IN_MM
+G28  -   RETURN_TO_RFRNCE
+G71  -   MULTPL_TURNING_CL
+G72  -   MULTPL_FACING_CL
+G74  -   DRILLING_CL
+G92  -   THREADING_CL
+G98  -   MM_PER_MIN
+G99  -   MM_PER_REV
+
+-----------------------------------------
+Supported M-codes:
+-----------------------------------------
+M03  -   CLK_SPNDL_RTN
+M04  -   C_CLK_SPNDL_RTN
+M05  -   SPINDLE_STOP
+M06  -   TOOL_CHANGE
+M08  -   COOLANT_ON
+M09  -   COOLANT_OFF
+M30  -   PROG_STOP
+
