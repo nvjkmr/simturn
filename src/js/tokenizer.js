@@ -1,4 +1,4 @@
-/* -------------------- Functions -------------------- */
+/* -------------------- BEGIN Functions -------------------- */
 var getLineNum = function(charNum, inputString) {
   var count = 1, i = 0;
   while(i <= charNum)
@@ -27,6 +27,10 @@ function isControlCode (mode) {
   }
   return false;
 }
+
+/* -------------------- END Functions -------------------- */
+
+/* -------------------------------------------------------------------------- */
 
 /* -------------------- Begin Tokenizer -------------------- */
 

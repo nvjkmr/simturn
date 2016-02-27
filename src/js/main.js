@@ -1,6 +1,6 @@
 /* -------------------- Begin File Reader -------------------- */
 
-function  startRead() {
+function startRead() {
     // disable the form
     //  obtain  input element through DOM
     var file  = document.getElementById('gcode-file').files[0];
@@ -9,7 +9,7 @@ function  startRead() {
     }
 }
 
-function  getAsText(readFile) {
+function getAsText(readFile) {
 
     var reader  = new FileReader();
 
@@ -21,9 +21,9 @@ function  getAsText(readFile) {
 
 function loaded (evt) {
   var fileString = evt.target.result;
-  // Temporary
-  document.getElementById('errors').setAttribute('style', 'display: none');
-  alert(JSON.stringify(tokenizer(fileString)));
+
+  // Start evaluation
+  startEval(fileString);
 }
 
 function updateProgress(evt) {
@@ -35,3 +35,25 @@ function updateProgress(evt) {
 }
 
 /* -------------------- End File Reader -------------------- */
+
+/* -------------------------------------------------------------------------- */
+
+/* -------------------- MAIN PROGRAM BEGIN -------------------- */
+function startEval (input) {
+  // Hide all previous errors...
+  document.getElementById('errors').setAttribute('style', 'display: none');
+
+  // Process the input string
+  var tokens = tokenizer(input);
+
+  // Validate the tokens
+  var validTokens = validateTokens(tokens);
+
+  // Evaluate valid tokens
+
+
+  // Show the output over the screen
+  alert(JSON.stringify(tokens));
+}
+
+/* -------------------- MAIN PROGRAM END -------------------- */
