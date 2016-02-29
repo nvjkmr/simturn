@@ -1,47 +1,46 @@
 -----------------------------------------
 Supported Address Codes:
 -----------------------------------------
-O    :   PROG_NUM
-N    :   LINE_NUM
-G    :   PREP_CMD
-X    :   ABS_X OR DTIS
-P    :   DTIMS
-U    :   INC_DIST_X
-Z    :   ABS_Z
-I    :   ARC_CNTR_X
-J    :   ARC_CNTR_Y
+O    :   PROGRAM NUMBER
+N    :   LINE NUMBER
+G    :   PREPRATORY COMMAND
+X    :   ABSOLUTE X OR DWELL TIME IN SECONDS
+P    :   DWELL TIME IN MILLI-SECONDS
+U    :   INCREMENTAL DISTANCE X
+Z    :   ABSOLUTE Z
+I    :   ARC CENTER X
+J    :   ARC CENTER Y
 R    :   RADIUS
-W    :   INC_DIST_Z
-F    :   FEED_RATE
-M    :   MISCLNS_FUNC
-S    :   SPINDLE_SPEED
-T    :   TOOL_MGMT
+W    :   INCREMENTAL DISTANCE Z
+F    :   FEED RATE
+M    :   MISCELLANEOUS FUNCTION
+S    :   SPINDLE SPEED
+T    :   TOOL MANAGEMENT
 
 -----------------------------------------
 Supported G-codes:
 -----------------------------------------
-G00  -   RAPID_TRAVERSE
-G01  -   LINEAR_TRAVERSE
-G02  -   CLK_CRCLR_INTR
-G03  -   C_CLK_CRCLR_INTR
+G00  -   RAPID TRAVERSE
+G01  -   LINEAR TRAVERSE
+G02  -   CLOCKWISE CIRCULAR INTERPOLATION
+G03  -   COUNTER CLOCKWISE CIRCULAR INTERPOLATION
 G04  -   DWELL
-G21  -   INPUT_IN_MM
-G28  -   RETURN_TO_RFRNCE
-G71  -   MULTPL_TURNING_CL
-G72  -   MULTPL_FACING_CL
-G74  -   DRILLING_CL
-G92  -   THREADING_CL
-G98  -   MM_PER_MIN
-G99  -   MM_PER_REV
+G21  -   FEED INPUT IN MM
+G28  -   RETURN TO REFERENCE
+G71  -   MULTIPLE TURNING CYCLE
+G72  -   MULTIPLE FACING CYCLE
+G74  -   DRILLING CYCLE
+G92  -   THREADING CYCLE
+G98  -   FEED PER MINUTE
 
 -----------------------------------------
 Supported M-codes:
 -----------------------------------------
-M03  -   CLK_SPNDL_RTN
-M04  -   C_CLK_SPNDL_RTN
-M05  -   SPINDLE_STOP
-M06  -   TOOL_CHANGE
-M08  -   COOLANT_ON
-M09  -   COOLANT_OFF
-M30  -   PROG_STOP
+M03  -   CLOCKWISE SPINDLE ROTATION
+M04  -   COUNTER CLOCKWISE SPINDLE ROTATION
+M05  -   STOP SPINDLE
+M06  -   TOOL CHANGE
+M08  -   COOLANT ON
+M09  -   COOLANT OFF
+M30  -   PROGRAM STOP
 

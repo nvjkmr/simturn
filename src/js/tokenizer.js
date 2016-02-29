@@ -1,4 +1,21 @@
+/* -------------------- Set Globals BEGIN -------------------- */
+
+// Block descriptors (parameterized codes) which are supported by program
+var supportedCodes = new Array("G00", "G01", "G02", "G03", "G04", 
+                              "G28", "G71", "G72", "74", "G92", 
+                              "M03", "M04", "M06");
+
+// Codes which don't have parameters
+var controlCodes = new Array("G21", "G98", "M05", "M08", "M09", "M30");
+
+/* -------------------- Set Globals  END  -------------------- */
+
+/* -------------------------------------------------------------------------- */
+
 /* -------------------- BEGIN Functions -------------------- */
+
+var isDigit = function(c) { return  /[0-9]/.test(c);  };
+
 var getLineNum = function(charNum, inputString) {
   var count = 1, i = 0;
   while(i <= charNum)
@@ -19,15 +36,29 @@ function trim (string) {
 }
 
 function isControlCode (mode) {
-  var controlCodes = new Array("G21", "G98", "G99", "M05", "M08", "M09", "M30");
   var counter = 0;
   while(counter < controlCodes.length){
-    if (mode === controlCodes[counter]) { return true; };
+    if (mode === controlCodes[counter]) return true;
     counter++;
   }
   return false;
 }
 
+function makeTwoDigit(digit) {
+  if(digit.length == 2) return digit;
+  else if(digit.length == 1 && isDigit(digit))
+    return '0'+digit;
+  else throw "Invalid Address '"+digit+"': Shouldn't be greater than 2 digits or less than 1 digit."
+}
+
+function isSupported(m) {
+  var counter = 0;
+  while(counter < supportedCodes.length){
+    if(m === supportedCodes[counter]) return true;
+    counter++;
+  }
+  return false;
+}
 /* -------------------- END Functions -------------------- */
 
 /* -------------------------------------------------------------------------- */
@@ -38,13 +69,11 @@ var tokenizer = function (input) {
   var tokens = [], c, i = 0, commentState = false, nonPara = false;
   var isWhiteSpace  = function(c) { return  /\s/.test(c); };
   var isNewline = function(c) { return /\n/.test(c); };
-  var isDigit = function(c) { return  /[0-9]/.test(c);  };
   var isWord = function(c) { return /(O|N|G|X|P|U|Z|W|R|F|M|S|T)/.test(c); };
   var advance = function() { return c = inputString[++i] };
   var next = function() { return inputString[i+1] };
   var addToken = function(type, value) {
-    tokens.push(
-      {
+    tokens.push({
         type: type,
         value: value
       });
@@ -85,7 +114,13 @@ var tokenizer = function (input) {
           if (nonPara) {
             if (word === 'N' || word === 'O') { addToken('CONTROL_CODE', mode); advance(); }
             else if (isControlCode(mode)) { addToken('CONTROL_CODE', mode); advance(); }
-            else { addToken('BLOCK_DESC', mode); advance(); }
+            else {
+              mode = word+makeTwoDigit(address);
+              if(isSupported(mode)){
+                addToken('BLOCK_DESC', mode);
+                advance();
+              } else  throw "At line "+ getLineNum(i, inputString) +": Invalid or Unsupported Code "+ mode;
+            }
           }
           else { addToken('PARAMETER', mode); advance(); }
 

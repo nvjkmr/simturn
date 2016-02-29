@@ -49,11 +49,22 @@ function startEval (input) {
   // Validate the tokens
   var validTokens = validateTokens(tokens);
 
-  // Evaluate valid tokens
+  // Get array of points
+  // var pointsArray = getPoints(validTokens);
 
+  // Initialize simulator
+  // Simulator.init();
 
-  // Show the output over the screen
+  // Add points to simulator
+  // addPointsToSimulator(pointsArray);
+
+  // Run the simulator
+  // Simulator.run();
+
+  // Show the output over the screen  -- Dev
   alert(JSON.stringify(tokens));
+  //alert(tokens.length)
+  //alert(tokens[0]["type"])
 }
 
 /* -------------------- MAIN PROGRAM END -------------------- */
