@@ -1,8 +1,11 @@
 /* -------------------- Set Globals BEGIN -------------------- */
 
+// Set of tools and their width of cut -- nothing at zero
+var toolData = new Array(null, '.25', '.5', '1', '2', '4');
+
 // Block descriptors (parameterized codes) which are supported by program
 var supportedCodes = new Array("G00", "G01", "G02", "G03", "G04", 
-                              "G28", "G71", "G72", "74", "G92", 
+                              "G28", "G71", "G72", "G74", "G92", 
                               "M03", "M04", "M06");
 
 // Codes which don't have parameters
@@ -144,6 +147,6 @@ var tokenizer = function (input) {
   finally {
     return tokens;
   }
-}
+};
 
 /* -------------------- End Tokenizer -------------------- */

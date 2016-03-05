@@ -50,10 +50,13 @@ function startEval (input) {
   var validTokens = validateTokens(tokens);
 
   // Get array of points
-  // var pointsArray = getPoints(validTokens);
+  var pointsArray = getPoints(validTokens);
 
   // Initialize simulator
   // Simulator.init();
+
+  // Add initial point
+  // Simulator.addPoint(x, z, feed, rpm, dia);
 
   // Add points to simulator
   // addPointsToSimulator(pointsArray);
@@ -62,9 +65,10 @@ function startEval (input) {
   // Simulator.run();
 
   // Show the output over the screen  -- Dev
-  alert(JSON.stringify(tokens));
-  //alert(tokens.length)
-  //alert(tokens[0]["type"])
+  // alert(JSON.stringify(tokens));
+  // alert(tokens.length)
+  // alert(tokens[0]["type"])
+  alert(JSON.stringify(pointsArray));
 }
 
 /* -------------------- MAIN PROGRAM END -------------------- */
