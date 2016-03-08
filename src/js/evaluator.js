@@ -110,9 +110,6 @@ var getPoints = function (validTokens) {
 						addPoint(tempData.x, tempData.z, Env.feed, Env.rpm, Env.dia);
 						tempData.x = null; tempData.z = null;
 					} else throw "Data isn't sufficient for the code:"+ Env.state;
-				} else if(Env.state=='G04') {
-					// handle dwell time
-					doNothing();
 				} else {
 					// handle multiple points
 				}
@@ -146,16 +143,27 @@ var goToStateG00 = function (param) {
 		tempData['z'] = param.slice(1);
 	}
 	else if (word == 'U') {
-		tempData['x'] = points[point.length-1]['x'] + param.slice(1);
+		tempData['x'] = Number(points[points.length-1]['x']) + Number(param.slice(1));
 	}
 	else if (word == 'W') {
-		tempData['z'] = points[point.length-1]['z'] + param.slice(1);
+		tempData['z'] = Number(points[points.length-1]['z']) + Number(param.slice(1));
 	}
 	else throw "Parameter '"+ word +"' is not supported for the code: "+ Env.state;
 };
 
 var goToStateG01 = function (param) {
-	// body...
+	word = param[0];
+	if (word == 'X') {
+		tempData['x'] = param.slice(1);
+	} else if (word == 'Z') {
+		tempData['z'] = param.slice(1);
+	} else if (word == 'U') {
+		tempData['x'] = Number(points[points.length-1]['x']) + Number(param.slice(1));
+	} else if (word == 'W') {
+		tempData['z'] = Number(points[points.length-1]['z']) + Number(param.slice(1));
+	} else if (word == 'F') {
+		Env.feed = param.slice(1);
+	} else throw "Parameter '"+ word +"' is not supported for the code: "+ Env.state;
 };
 
 var goToStateG02 = function (param) {
@@ -167,7 +175,7 @@ var goToStateG03 = function (param) {
 };
 
 var goToStateG04 = function (param) {
-	// body...
+	doNothing();
 };
 
 var goToStateG28 = function (param) {
@@ -202,7 +210,7 @@ var goToStateM04 = function (param) {
 	word = param[0];
 	if (word == 'S') {
 		// change the spindle speed
-		Env.rpm = param.slice(1);
+		Env.rpm = '-'+param.slice(1);	// counter clockwise spindle speed
 	} else throw "Parameter '"+ word +"' is not supported for the code: "+ Env.state;
 };
 
