@@ -1,6 +1,4 @@
-function doNothing() { return null; }
-
-// Environment
+// Initializing environment
 var Env = new Object();
 Env.x = null;
 Env.z = null;
@@ -9,7 +7,6 @@ Env.rpm = null;
 Env.dia = toolData[2];
 Env.state = null;
 Env.progNum = null;
-Env.tool = null;
 Env.coolant = null;
 Env.rapidSpeed = 8000;
 
@@ -38,6 +35,8 @@ var addPoint = function (x, z, feed, rpm, dia) {
 var isDataSuffice = function (state, data) {
 	return true;
 };
+
+function doNothing() { return null; }
 
 /* -------------------- BEGIN - Get Points -------------------- */
 
@@ -106,12 +105,14 @@ var getPoints = function (validTokens) {
 			// Execute the block or simply do nothing
 			else if(type == "EOB"){
 				if (Env.state == 'G00' || Env.state == 'G01' || Env.state == 'G28') {
+					// handle single points
 					if(isDataSuffice(Env.state, tempData)) {
 						addPoint(tempData.x, tempData.z, Env.feed, Env.rpm, Env.dia);
-						tempData = null;
-					}
-				} else if (Env.state=='G04' || Env.state=='M03' || Env.state=='M04' || Env.state=='M06') {
-					// set appropriate environment data
+						tempData.x = null; tempData.z = null;
+					} else throw "Data isn't sufficient for the code:"+ Env.state;
+				} else if(Env.state=='G04') {
+					// handle dwell time
+					doNothing();
 				} else {
 					// handle multiple points
 				}
@@ -150,7 +151,7 @@ var goToStateG00 = function (param) {
 	else if (word == 'W') {
 		tempData['z'] = points[point.length-1]['z'] + param.slice(1);
 	}
-	else throw "Parameter '"+ word +"' is not supported for the code: G00";
+	else throw "Parameter '"+ word +"' is not supported for the code: "+ Env.state;
 };
 
 var goToStateG01 = function (param) {
@@ -190,15 +191,27 @@ var goToStateG92 = function (param) {
 };
 
 var goToStateM03 = function (param) {
-	// body...
+	word = param[0];
+	if (word == 'S') {
+		// change the spindle speed
+		Env.rpm = param.slice(1);
+	} else throw "Parameter '"+ word +"' is not supported for the code: "+ Env.state;
 };
 
 var goToStateM04 = function (param) {
-	// body...
+	word = param[0];
+	if (word == 'S') {
+		// change the spindle speed
+		Env.rpm = param.slice(1);
+	} else throw "Parameter '"+ word +"' is not supported for the code: "+ Env.state;
 };
 
 var goToStateM06 = function (param) {
-	// body...
+	word = param[0];
+	if (word == 'T') {
+		// change the tool if available
+		Env.dia = toolData[param.slice(1)];
+	} else throw "Parameter '"+ word +"' is not supported for the code: "+ Env.state;
 };
 
 /* --------------------  END   -  State Functions -------------------- */

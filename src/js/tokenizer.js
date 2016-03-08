@@ -51,7 +51,7 @@ function makeTwoDigit(digit) {
   if(digit.length == 2) return digit;
   else if(digit.length == 1 && isDigit(digit))
     return '0'+digit;
-  else throw "Invalid Address '"+digit+"': Shouldn't be greater than 2 digits or less than 1 digit."
+  else throw "Invalid Address '"+digit+"': Shouldn't be greater than 2 digits or less than 1 digit";
 }
 
 function isSupported(m) {
