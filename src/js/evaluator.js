@@ -4,7 +4,7 @@ Env.x = null;
 Env.z = null;
 Env.feed = null;
 Env.rpm = null;
-Env.dia = toolData[2];
+Env.dia = toolData[toolByDefault];
 Env.state = null;
 Env.progNum = null;
 Env.coolant = null;
@@ -41,7 +41,7 @@ function doNothing() { return null; }
 /* -------------------- BEGIN - Get Points -------------------- */
 
 var getPoints = function (validTokens) {
-	var i = 0;
+	var i = 0; points = [];
 
 	try{
 		while(i < validTokens.length){
@@ -56,13 +56,13 @@ var getPoints = function (validTokens) {
 				else if (value == 'G98')
 					doNothing();	// set by default
 				else if (value == 'M05')
-					Simulator.addPoint(['x'], ['z'], ['feed'], 0, ['dia']);
+					Env.state = 'M05';
 				else if (value == 'M08')
 					Env.coolant = true;
 				else if (value == 'M09')
 					Env.coolant = false;
 				else if (value == 'M30')
-					Simulator.addPoint(['x'], ['z'], ['feed'], 0, ['dia']);
+					Env.state = 'M30';
 				else if (value[0] == 'N')
 					lineNums.push(value.slice(1));
 				else if (value[0] == 'O')
@@ -104,15 +104,22 @@ var getPoints = function (validTokens) {
 			}
 			// Execute the block or simply do nothing
 			else if(type == "EOB"){
-				if (Env.state == 'G00' || Env.state == 'G01' || Env.state == 'G28') {
+				if (Env.state == 'M30' || Env.state == 'M05') {
+					addPoint(Env.x, Env.z, Env.feed, 0, Env.dia);
+				} else if (Env.state == 'G00' || Env.state == 'G01') {
 					// handle single points
 					if(isDataSuffice(Env.state, tempData)) {
-						addPoint(tempData.x, tempData.z, Env.feed, Env.rpm, Env.dia);
-						tempData.x = null; tempData.z = null;
+						addPoint(Env.x, Env.z, Env.feed, Env.rpm, Env.dia);
+						// tempData.x = null; tempData.z = null;
 					} else throw "Data isn't sufficient for the code:"+ Env.state;
-				} else {
+				} else if(Env.state == 'G28') {
+					// handle G28 | double points
+					addPoint(Env.x, Env.z, Env.feed, Env.rpm, Env.dia);
+					addPoint(0, 0, Env.feed, Env.rpm, Env.dia);
+					// tempData.x = null; tempData.z = null;
+				} else if(Env.state == 'G71') {
 					// handle multiple points
-				}
+				} else doNothing();
 			}
 			else throw "Unknown Type Error: Token type is undefined";
 		i++;
@@ -137,16 +144,16 @@ var goToStateG00 = function (param) {
 	word = param[0];
 	Env.feed = Env.rapidSpeed;
 	if (word == 'X') {
-		tempData['x'] = param.slice(1);
+		Env['x'] = param.slice(1);
 	}
 	else if (word == 'Z') {
-		tempData['z'] = param.slice(1);
+		Env['z'] = param.slice(1);
 	}
 	else if (word == 'U') {
-		tempData['x'] = Number(points[points.length-1]['x']) + Number(param.slice(1));
+		Env['x'] = Number(Env['x']) + Number(param.slice(1));
 	}
 	else if (word == 'W') {
-		tempData['z'] = Number(points[points.length-1]['z']) + Number(param.slice(1));
+		Env['z'] = Number(Env['z']) + Number(param.slice(1));
 	}
 	else throw "Parameter '"+ word +"' is not supported for the code: "+ Env.state;
 };
@@ -154,13 +161,13 @@ var goToStateG00 = function (param) {
 var goToStateG01 = function (param) {
 	word = param[0];
 	if (word == 'X') {
-		tempData['x'] = param.slice(1);
+		Env['x'] = param.slice(1);
 	} else if (word == 'Z') {
-		tempData['z'] = param.slice(1);
+		Env['z'] = param.slice(1);
 	} else if (word == 'U') {
-		tempData['x'] = Number(points[points.length-1]['x']) + Number(param.slice(1));
+		Env['x'] = Number(Env['x']) + Number(param.slice(1));
 	} else if (word == 'W') {
-		tempData['z'] = Number(points[points.length-1]['z']) + Number(param.slice(1));
+		Env['z'] = Number(Env['z']) + Number(param.slice(1));
 	} else if (word == 'F') {
 		Env.feed = param.slice(1);
 	} else throw "Parameter '"+ word +"' is not supported for the code: "+ Env.state;
@@ -179,7 +186,21 @@ var goToStateG04 = function (param) {
 };
 
 var goToStateG28 = function (param) {
-	// body...
+	word = param[0];
+	Env.feed = Env.rapidSpeed;
+	if (word == 'X') {
+		Env['x'] = param.slice(1);
+	}
+	else if (word == 'Z') {
+		Env['z'] = param.slice(1);
+	}
+	else if (word == 'U') {
+		Env['x'] = Number(Env['x']) + Number(param.slice(1));
+	}
+	else if (word == 'W') {
+		Env['z'] = Number(Env['z']) + Number(param.slice(1));
+	}
+	else throw "Parameter '"+ word +"' is not supported for the code: "+ Env.state;
 };
 
 var goToStateG71 = function (param) {

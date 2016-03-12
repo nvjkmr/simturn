@@ -65,7 +65,7 @@ function startEval (input) {
   // Simulator.run();
 
   // Show the output over the screen  -- Dev
-  // alert(JSON.stringify(tokens));
+  alert(JSON.stringify(tokens));
   // alert(tokens.length)
   // alert(tokens[0]["type"])
   alert(JSON.stringify(pointsArray));
