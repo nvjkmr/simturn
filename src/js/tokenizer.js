@@ -3,7 +3,7 @@
 // Set of tools and their width of cut -- nothing at zero
 var toolData = new Array(null, '.25', '.5', '1', '2', '4');
 
-var toolByDefault = 2;
+var toolByDefault = 2, rapidSpeedByDefault = 8000;
 
 // Block descriptors (parameterized codes) which are supported by program
 var supportedCodes = new Array("G00", "G01", "G02", "G03", "G04", 
