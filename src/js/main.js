@@ -38,6 +38,18 @@ function updateProgress(evt) {
 
 /* -------------------------------------------------------------------------- */
 
+/* -------------------- Begin Globals -------------------- */
+
+// Set of tools and their width of cut -- nothing at zero
+var toolData = new Array(null, '.25', '.5', '1', '2', '4');
+
+// set default tool and rapid speed
+var toolByDefault = 2, rapidSpeedByDefault = 8000;
+
+/* -------------------- End Globals -------------------- */
+
+/* -------------------------------------------------------------------------- */
+
 /* -------------------- MAIN PROGRAM BEGIN -------------------- */
 function startEval (input) {
   // Hide all previous errors...

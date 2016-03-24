@@ -1,10 +1,5 @@
 /* -------------------- Set Globals BEGIN -------------------- */
 
-// Set of tools and their width of cut -- nothing at zero
-var toolData = new Array(null, '.25', '.5', '1', '2', '4');
-
-var toolByDefault = 2, rapidSpeedByDefault = 8000;
-
 // Block descriptors (parameterized codes) which are supported by program
 var supportedCodes = new Array("G00", "G01", "G02", "G03", "G04", 
                               "G28", "G71", "G72", "G74", "G92", 
@@ -22,7 +17,7 @@ var controlCodes = new Array("G21", "G98", "M05", "M08", "M09", "M30");
 var isDigit = function(c) { return  /[0-9]/.test(c);  };
 
 var getLineNum = function(charNum, inputString) {
-  var count = 1, i = 0;
+  var count = 0, i = 0;
   while(i <= charNum)
     {
       if(inputString[i] == "\n") count++;
@@ -97,7 +92,7 @@ var tokenizer = function (input) {
       else if(commentState) { advance(); }
 
       // Handling newlines
-      else if(isNewline(c)) { addToken('EOB', c); advance(); }
+      else if(isNewline(c)) { addToken('EB', c); advance(); }
 
       // Detecting Words
       else if(isWord(c)) {
@@ -117,19 +112,19 @@ var tokenizer = function (input) {
           if (isNewline(c)) { newLine = true; };
           mode = word+address;
           if (nonPara) {
-            if (word === 'N' || word === 'O') { addToken('CONTROL_CODE', mode); advance(); }
-            else if (isControlCode(mode)) { addToken('CONTROL_CODE', mode); advance(); }
+            if (word === 'N' || word === 'O') { addToken('CC', mode); advance(); }
+            else if (isControlCode(mode)) { addToken('CC', mode); advance(); }
             else {
               mode = word+makeTwoDigit(address);
               if(isSupported(mode)){
-                addToken('BLOCK_DESC', mode);
+                addToken('BD', mode);
                 advance();
               } else  throw "At line "+ getLineNum(i, inputString) +": Invalid or Unsupported Code "+ mode;
             }
           }
-          else { addToken('PARAMETER', mode); advance(); }
+          else { addToken('PM', mode); advance(); }
 
-          if(newLine) { addToken('EOB', '\n'); newLine = false;}
+          if(newLine) { addToken('EB', '\n'); newLine = false;}
 
           // set back to normal
           nonPara = false;
@@ -138,7 +133,7 @@ var tokenizer = function (input) {
       else if (isWhiteSpace(c)) {
         advance();
       }
-      else throw "Unexpected character '"+ c +"' at line" + getLineNum(i, inputString);
+      else throw "Unexpected character '"+ c +"' at line " + getLineNum(i, inputString);
 
     }
   }

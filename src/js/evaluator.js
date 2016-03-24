@@ -1,18 +1,39 @@
-// Initializing environment
+/**
+  Initializing Environment
+*/
 var Env = new Object();
-Env.feed = null;
-Env.rpm = null;
 Env.dia = toolData[toolByDefault];
-Env.state = null;
-Env.progNum = null;
-Env.coolant = null;
 Env.rapidSpeed = rapidSpeedByDefault;
 
-var points = [], lineNums = [];
-var tempData = new Object();
+/**
+  Initializing variables
+*/
+var points = new Array(), lineNums = new Array(), tempData = new Object(), errors = false;
 
-var lineNumsCheck = function (lineNumsArray) {
-	return (lineNumsArray == lineNumsArray.sort())
+/**
+  Declaring functions
+*/
+var throwExceptionsOnScreen = function (errorOrWarn, e) {
+	document.getElementById(errorOrWarn).setAttribute("style", "display: block");
+	document.getElementById(errorOrWarn).innerHTML = e;
+}
+
+var hideAlertBoxes = function () {
+	document.getElementById('errors').setAttribute("style", "display: none");
+	document.getElementById('warnings').setAttribute("style", "display: none");
+}
+
+var paramError = function (word) {
+	throw "Error: Parameter '"+ word +"' is not supported for the code '"+ Env.state+"'";
+}
+
+var avoidNullState = function () {
+	if (!Env.hasOwnProperty('state'))
+		throw "Error: Block descriptor is undefined";
+}
+
+var eobError = function () {
+	throw "Error: Unexpected End of Block code";
 }
 
 var addPoint = function (x, z, feed, rpm, dia) {
@@ -25,318 +46,389 @@ var addPoint = function (x, z, feed, rpm, dia) {
 	});
 };
 
-var isDataSuffice = function (state, data) {
-	return true;
-};
-
 function doNothing() { return null; }
 
-/* -------------------- BEGIN - Get Points -------------------- */
+/**
+  Operational code parameter handlers
+*/
+var opCodeParamHandlers = {
+	G00 : function (param) {
+		word = param[0]; tempData.f = Env.rapidSpeed;
+		if (word == 'X') {
+			tempData.x = param.slice(1);
+		} else if (word == 'Z') {
+			tempData.z = param.slice(1);
+		} else if (word == 'U') {
+			tempData.x = Number(Env.x) + Number(param.slice(1));
+		} else if (word == 'W') {
+			tempData.z = Number(Env.z) + Number(param.slice(1));
+		} else paramError(word);
+	},
 
+	G01 : function (param) {	
+		word = param[0]; tempData.f = Env.feed;
+		if (word == 'X') {
+			tempData.x = param.slice(1);
+		} else if (word == 'Z') {
+			tempData.z = param.slice(1);
+		} else if (word == 'U') {
+			tempData.x = Number(Env.x) + Number(param.slice(1));
+		} else if (word == 'W') {
+			tempData.z = Number(Env.z) + Number(param.slice(1));
+		} else if (word == 'F') {
+			tempData.f = param.slice(1);
+		} else paramError(word);
+	},
+
+	G02 : function (param) {
+		word = param[0];
+		if (word == 'X') {
+			tempData.x = param.slice(1);
+		} else if (word == 'Z') {
+			tempData.z = param.slice(1);
+		} else if (word == 'U') {
+			tempData.x = Number(Env.x) + Number(param.slice(1));
+		} else if (word == 'W') {
+			tempData.z = Number(Env.z) + Number(param.slice(1));
+		} else if (word == 'F') {
+			tempData.f = param.slice(1);
+		} else if(word == 'R') {
+			tempData.r = param.slice(1);
+		} else if(word == 'I') {
+			tempData.i = param.slice(1);
+		} else if(word == 'K') {
+			tempData.k = param.slice(1);
+		} else paramError(word);
+	},
+
+	G03 : function (param) {
+		word = param[0];
+		if (word == 'X') {
+			tempData.x = param.slice(1);
+		} else if (word == 'Z') {
+			tempData.z = param.slice(1);
+		} else if (word == 'U') {
+			tempData.x = Number(Env.x) + Number(param.slice(1));
+		} else if (word == 'W') {
+			tempData.z = Number(Env.z) + Number(param.slice(1));
+		} else if (word == 'F') {
+			tempData.f = param.slice(1);
+		} else if(word == 'R') {
+			tempData.r = param.slice(1);
+		} else if(word == 'I') {
+			tempData.i = param.slice(1);
+		} else if(word == 'K') {
+			tempData.k = param.slice(1);
+		} else paramError(word);
+	},
+
+	G04 : function (param) {
+		word = param[0];
+		if (word == 'P') {
+			tempData.p = param.slice(1);
+		} else if (word == 'X') {
+			tempData.x = param.slice(1);
+		} else paramError(word);
+	},
+
+	G28 : function (param) {
+		word = param[0]; tempData.f = Env.rapidSpeed;
+		if (word == 'X') {
+			tempData.x = param.slice(1);
+		} else if (word == 'Z') {
+			tempData.z = param.slice(1);
+		} else if (word == 'U') {
+			tempData.x = Number(Env.x) + Number(param.slice(1));
+		} else if (word == 'W') {
+			tempData.z = Number(Env.z) + Number(param.slice(1));
+		} else paramError(word);
+	},
+
+	G71 : function (param) {
+		word = param[0];
+		if (word == 'P') {
+			tempData.p = param.slice(1);
+		} else if (word == 'Q') {
+			tempData.q = param.slice(1);
+		} else if (word == 'U') {
+			tempData.x = Number(Env.x) + Number(param.slice(1));
+		} else if (word == 'W') {
+			tempData.z = Number(Env.z) + Number(param.slice(1));
+		} else if (word == 'F') {
+			tempData.f = param.slice(1);
+		} else if(word == 'R') {
+			tempData.r = param.slice(1);
+		} else if(word == 'S') {
+			tempData.s = param.slice(1);
+		} else paramError(word);
+	},
+
+	G72 : function (param) {
+		word = param[0];
+		if (word == 'U') {
+			tempData.u = param.slice(1);
+		} else if (word == 'W') {
+			tempData.w = param.slice(1);
+		} else if (word == 'R') {
+			tempData.r = param.slice(1);
+		} else if (word == 'P') {
+			tempData.p = param.slice(1);
+		} else if (word == 'Q') {
+			tempData.q = param.slice(1);
+		} else paramError(word);
+	},
+
+	G74 : function (param) {
+		word = param[0];
+		if (word == 'W') {
+			tempData.w = param.slice(1);
+		} else if (word == 'R') {
+			tempData.r = param.slice(1);
+		} else if (word == 'P') {
+			tempData.p = param.slice(1);
+		} else if (word == 'Q') {
+			tempData.q = param.slice(1);
+		} else if (word == 'U') {
+			tempData.u = param.slice(1);
+		} else if (word == 'W') {
+			tempData.w = param.slice(1);
+		} else if (word == 'S') {
+			tempData.s = param.slice(1);
+		} else if (word == 'F') {
+			tempData.f = param.slice(1);
+		} else paramError(word);
+	},
+
+	G92 : function (param) {
+		word = param[0];
+		if (word == 'X') {
+			tempData.x = param.slice(1);
+		} else if (word == 'Z') {
+			tempData.z = param.slice(1);
+		} else if (word == 'F') {
+			tempData.f = param.slice(1);
+		} else paramError(word);
+	},
+
+	M03 : function (param) {
+		word = param[0];
+		if (word == 'S') {
+			tempData.s = param.slice(1);	// change spindle speed
+		} else paramError(word);
+	},
+
+	M04 : function (param) {
+		word = param[0];
+		if (word == 'S') {
+			tempData.s = '-'+param.slice(1);	// counter clockwise spindle speed
+		} else paramError(word);
+	},
+
+	M06 : function (param) {
+		word = param[0];
+		if (word == 'T') {
+			tempData.t = param.slice(1);
+		} else paramError(word);
+	}
+};
+
+
+/**
+  Control code handlers
+*/
+var controlCodeHandlers = {
+	G21 : function () {
+		Env.state = 'G21';
+	},
+
+	G98 : function () {
+		Env.state = 'G98';
+	},
+
+	M05 : function () {
+		Env.state = 'M05';
+	},
+
+	M08 : function () {
+		Env.coolant = true;
+		Env.state = 'M08';
+	},
+
+	M09 : function () {
+		Env.coolant = false;
+		Env.state = 'M09';	
+	},
+
+	M30 : function () {
+		Env.state = 'M30';
+	},
+
+	N : function (value) {
+		lineNums.push(Number(value.slice(1)));
+		Env.state = 'N';
+	},
+
+	O : function (value) {
+		Env.progNum = Number(value.slice(1));
+		Env.state = 'O';
+	}
+};
+
+/**
+  End of block handlers
+*/
+var eobHandlers = {
+	// states and functions
+	N : function (data) {
+		throw "Alert: Blank line found!";
+	},
+
+	O : function (data) {
+		doNothing();
+	},
+
+	G21 : function (data) {
+		doNothing();
+	},
+
+	G98 : function (data) {
+		doNothing();
+	},
+
+	M08 : function (data) {
+		doNothing();
+	},
+
+	M09 : function (data) {
+		doNothing();
+	},
+
+	M30 : function (data) {
+		addPoint(Env.x, Env.z, Env.feed, 0, Env.dia); // set the spindle speed to zero
+	},
+
+	M05 : function (data) {
+		addPoint(Env.x, Env.z, Env.feed, 0, Env.dia);	// set spindle speed to zero
+	},
+
+	G00 : function (data) {
+		addPoint(data.x, data.z, data.f, Env.rpm, Env.dia);
+	},
+
+	G01 : function (data) {
+		addPoint(data.x, data.z, data.f, Env.rpm, Env.dia);
+	},
+
+	G02 : function (data) {
+		// body...
+	},
+
+	G03 : function (data) {
+		// body...
+	},
+
+	G04 : function (data) {
+		doNothing();
+	},
+
+	G28 : function (data) {
+		addPoint(data.x, data.z, data.f, Env.rpm, Env.dia);
+		addPoint(0, 0, data.feed, Env.rpm, Env.dia);
+	},
+
+	G71 : function (data) {
+		// body...
+	},
+
+	G72 : function (data) {
+		// body...
+	},
+
+	G74 : function (data) {
+		// body...
+	},
+
+	G92 : function (data) {
+		// body...
+	},
+
+	M03 : function (data) {
+		Env.rpm = data.s;
+	},
+
+	M04 : function (data) {
+		Env.rpm = data.s;
+	},
+
+	M06 : function (data) {
+		Env.dia = toolData[data.t];
+	}
+};
+
+/**
+  Evaluating tokens
+*/
 var getPoints = function (validTokens) {
-	var i = 0; points = [];
+	points = new Array();	// empty the array to reset
 
-	try{
-		while(i < validTokens.length){
-			
-			type = validTokens[i]["type"];
-			value = validTokens[i]["value"];
+	hideAlertBoxes();	// reset the alert area
 
-			// Non parameterized codes and program/line numbers
-			if(type == "CONTROL_CODE"){
-				if(value == 'G21')
-					doNothing();	// set by default
-				else if (value == 'G98')
-					doNothing();	// set by default
-				else if (value == 'M05')
-					Env.state = 'M05';
-				else if (value == 'M08')
-					Env.coolant = true;
-				else if (value == 'M09')
-					Env.coolant = false;
-				else if (value == 'M30')
-					Env.state = 'M30';
-				else if (value[0] == 'N') {
-					lineNums.push(value.slice(1));
-					Env.state = 'LINE_NUM';
-				}
-				else if (value[0] == 'O') {
-					Env.progNum = value.slice(1);
-					Env.state = 'PROG_NUM';
-				}
+	try {
+		// loop through the tokens and evaluate
+		for (var i = 0; i < validTokens.length; i++) {
+			type = validTokens[i].type; value = validTokens[i].value;
+			// parameters - PM
+			if (type == 'PM') {
+				// if state is null then throw error
+				avoidNullState();
+				// if doesn't have an entry then throw parameter error
+				if (!opCodeParamHandlers.hasOwnProperty(Env.state))
+					paramError(value[0]);
+				opCodeParamHandlers[Env.state](value);	// handle parameters
 			}
-			// Codes with parameters
-			else if(type == "BLOCK_DESC"){
-				Env.state = value;
+			// block descriptors - BD
+			else if (type == 'BD') {
+				Env.state = value;	// handle block descriptors
 			}
-			// Parameters to the block descriptors
-			else if(type == "PARAMETER"){
-				if(Env.state == 'G00'){
-					goToStateG00(value);
-				} else if(Env.state == 'G01'){
-					goToStateG01(value);
-				} else if(Env.state == 'G02'){
-					goToStateG02(value);
-				} else if(Env.state == 'G03'){
-					goToStateG03(value);
-				} else if(Env.state == 'G04'){
-					goToStateG04(value);
-				} else if(Env.state == 'G28'){
-					goToStateG28(value);
-				} else if(Env.state == 'G71'){
-					goToStateG71(value);
-				} else if(Env.state == 'G72'){
-					goToStateG72(value);
-				} else if(Env.state == 'G74'){
-					goToStateG74(value);
-				} else if(Env.state == 'G92'){
-					goToStateG92(value);
-				} else if(Env.state == 'M03'){
-					goToStateM03(value);
-				} else if(Env.state == 'M04'){
-					goToStateM04(value);
-				} else if(Env.state == 'M06'){
-					goToStateM06(value);
-				}
+			// end of block - EB
+			else if (type == 'EB') {
+				avoidNullState();	// avoid null state
+				if (!eobHandlers.hasOwnProperty(Env.state))
+					eobError();	// if not a property then throw error
+
+				/** 
+				   check if input data is suffice
+				*/
+
+			   // update the Env (x, z, feed) with tempData info
+				if(tempData.hasOwnProperty('x'))
+					Env.x = tempData.x;
+				if (tempData.hasOwnProperty('z'))
+					Env.z = tempData.z;
+				if (tempData.hasOwnProperty('f'))
+					Env.feed = tempData.f;
+
+				eobHandlers[Env.state](tempData);	// handle end of block
+				tempData = new Object();	// reset tempData
+
+				if (Env.state == 'M30')		// if state M30 then return the points
+					return points;			// and stop the program execution
 			}
-			// Execute the block or simply do nothing
-			else if(type == "EOB"){
-				if(Env.state == "LINE_NUM" || Env.state == "PROG_NUM")
-					throw "Alert: Blank line found!";
-				// if(!isDataSuffice(Env.state, tempData))
-				//	throw "Not enough parameters for the code:" + Env.state;
-				if (Env.state == 'M30' || Env.state == 'M05') {
-					addPoint(Env.x, Env.z, Env.feed, 0, Env.dia);
-				} else if (Env.state == 'G00' || Env.state == 'G01') {
-					// handle single points
-					addPoint(Env.x, Env.z, Env.feed, Env.rpm, Env.dia);
-				} else if (Env.state == 'G02' || Env.state == 'G03') {
-					//
-				} else if(Env.state == 'G28') {
-					// handle G28 | double points
-					addPoint(Env.x, Env.z, Env.feed, Env.rpm, Env.dia);
-					addPoint(0, 0, Env.feed, Env.rpm, Env.dia);
-				} else if(Env.state == 'G71') {
-			}
-			else throw "Error: Token type is undefined";
-		i++;
+			// control codes : multiline support - CC
+			else if (type == 'CC') {
+				if (value[0] == 'O' || value[0] == 'N')		// line & program numbers
+					controlCodeHandlers[value[0]](value);
+				else controlCodeHandlers[value]();	// handle control codes
+			} else throw "Alert: Unknown token type found!"
 		}
-	
-		// Checking line numbers
-		if(lineNumsCheck(lineNums))
-			throw "Error: The line numbers are not in proper order";
-	}
-	catch(e) {
+	} catch(e) {
 		if (e[0] == 'E') {
-			document.getElementById('errors').setAttribute("style", "display: block");
-   			document.getElementById('errors').innerHTML = e;
-		} else {
-			document.getElementById('warnings').setAttribute("style", "display: block");
-			document.getElementById('warnings').innerHTML = e;
-		}
+			errors = true;
+			throwExceptionsOnScreen('errors', e);	// handle errors
+		} else throwExceptionsOnScreen('warnings', e);	// handle warnings
 	} finally {
-		return points;
+		if (errors == false)
+			return points;
+		else return null;
 	}
-};
-
-/* -------------------- END  -  Get Points -------------------- */
-
-/* -------------------------------------------------------------------------- */
-
-/* -------------------- BEGIN  -  State Functions -------------------- */
-
-var goToStateG00 = function (param) {
-	word = param[0];
-	Env.feed = Env.rapidSpeed;
-	if (word == 'X') {
-		Env['x'] = param.slice(1);
-	} else if (word == 'Z') {
-		Env['z'] = param.slice(1);
-	} else if (word == 'U') {
-		Env['x'] = Number(Env['x']) + Number(param.slice(1));
-	} else if (word == 'W') {
-		Env['z'] = Number(Env['z']) + Number(param.slice(1));
-	} else throw "Error: Parameter '"+ word +"' is not supported for the code '"+ Env.state+"'";
-};
-
-var goToStateG01 = function (param) {
-	word = param[0];
-	if (word == 'X') {
-		Env['x'] = param.slice(1);
-	} else if (word == 'Z') {
-		Env['z'] = param.slice(1);
-	} else if (word == 'U') {
-		Env['x'] = Number(Env['x']) + Number(param.slice(1));
-	} else if (word == 'W') {
-		Env['z'] = Number(Env['z']) + Number(param.slice(1));
-	} else if (word == 'F') {
-		Env.feed = param.slice(1);
-	} else throw "Error: Parameter '"+ word +"' is not supported for the code '"+ Env.state+"'";
-};
-
-var goToStateG02 = function (param) {
-	word = param[0];
-	if (word == 'X') {
-		Env['x'] = param.slice(1);
-	} else if (word == 'Z') {
-		Env['z'] = param.slice(1);
-	} else if (word == 'U') {
-		Env['x'] = Number(Env.x) + Number(param.slice(1));
-	} else if (word == 'W') {
-		Env['z'] = Number(Env.z) + Number(param.slice(1));
-	} else if (word == 'F') {
-		Env.feed = param.slice(1);
-	} else if(word == 'R') {
-		Env.r = param.slice(1);
-	} else if(word == 'I') {
-		Env.i = param.slice(1);
-	} else if(word == 'K') {
-		Env.k = param.slice(1);
-	} else throw "Error: Parameter '"+ word +"' is not supported for the code '"+ Env.state+"'";
-};
-
-var goToStateG03 = function (param) {	
-	word = param[0];
-	if (word == 'X') {
-		Env['x'] = param.slice(1);
-	} else if (word == 'Z') {
-		Env['z'] = param.slice(1);
-	} else if (word == 'U') {
-		Env['x'] = Number(Env['x']) + Number(param.slice(1));
-	} else if (word == 'W') {
-		Env['z'] = Number(Env['z']) + Number(param.slice(1));
-	} else if (word == 'F') {
-		Env.feed = param.slice(1);
-	} else if(word == 'R') {
-		Env.r = param.slice(1);
-	} else if(word == 'I') {
-		Env.i = param.slice(1);
-	} else if(word == 'K') {
-		Env.k = param.slice(1);
-	} else throw "Error: Parameter '"+ word +"' is not supported for the code '"+ Env.state+"'";
-};
-
-var goToStateG04 = function (param) {
-	doNothing();
-};
-
-var goToStateG28 = function (param) {
-	word = param[0];
-	Env.feed = Env.rapidSpeed;
-	if (word == 'X') {
-		Env['x'] = param.slice(1);
-	} else if (word == 'Z') {
-		Env['z'] = param.slice(1);
-	} else if (word == 'U') {
-		Env['x'] = Number(Env['x']) + Number(param.slice(1));
-	} else if (word == 'W') {
-		Env['z'] = Number(Env['z']) + Number(param.slice(1));
-	} else throw "Error: Parameter '"+ word +"' is not supported for the code '"+ Env.state+"'";
-};
-
-var goToStateG71 = function (param) {
-	word = param[0];
-	if (word == 'P') {
-		Env['p'] = param.slice(1);
-	} else if (word == 'Q') {
-		Env['q'] = param.slice(1);
-	} else if (word == 'U') {
-		Env['x'] = Number(Env['x']) + Number(param.slice(1));
-	} else if (word == 'W') {
-		Env['z'] = Number(Env['z']) + Number(param.slice(1));
-	} else if (word == 'F') {
-		Env.feed = param.slice(1);
-	} else if(word == 'R') {
-		Env.r = param.slice(1);
-	} else if(word == 'S') {
-		Env.s = param.slice(1);
-	} else throw "Error: Parameter '"+ word +"' is not supported for the code '"+ Env.state+"'";
-};
-
-var goToStateG72 = function (param) {
-	word = param[0];
-	if (word == 'U') {
-		Env.u = param.slice(1);
-	} else if (word == 'W') {
-		Env['w'] = param.slice(1);
-	} else if (word == 'R') {
-		Env['r'] = param.slice(1);
-	} else if (word == 'P') {
-		Env['p'] = param.slice(1);
-	} else if (word == 'Q') {
-		Env['q'] = param.slice(1);
-	} else throw "Error: Parameter '"+ word +"' is not supported for the code '"+ Env.state+"'";
-};
-
-var goToStateG74 = function (param) {
-	word = param[0];
-	if (word == 'W') {
-		Env['w'] = param.slice(1);
-	} else if (word == 'R') {
-		Env['r'] = param.slice(1);
-	} else if (word == 'P') {
-		Env['p'] = param.slice(1);
-	} else if (word == 'Q') {
-		Env['q'] = param.slice(1);
-	} else if (word == 'U') {
-		Env['u'] = param.slice(1);
-	} else if (word == 'W') {
-		Env['w'] = param.slice(1);
-	} else if (word == 'S') {
-		Env['s'] = param.slice(1);
-	} else if (word == 'F') {
-		Env['f'] = param.slice(1);
-	} else throw "Error: Parameter '"+ word +"' is not supported for the code '"+ Env.state+"'";
-};
-
-var goToStateG92 = function (param) {
-	word = param[0];
-	if (word == 'X') {
-		Env['x'] = param.slice(1);
-	} else if (word == 'Z') {
-		Env['z'] = param.slice(1);
-	} else if (word == 'F') {
-		Env['f'] = param.slice(1);
-	} else throw "Error: Parameter '"+ word +"' is not supported for the code '"+ Env.state+"'";
-};
-
-var goToStateM03 = function (param) {
-	word = param[0];
-	if (word == 'S') {
-		// change the spindle speed
-		Env.rpm = param.slice(1);
-	} else throw "Error: Parameter '"+ word +"' is not supported for the code '"+ Env.state+"'";
-};
-
-var goToStateM04 = function (param) {
-	word = param[0];
-	if (word == 'S') {
-		// change the spindle speed
-		Env.rpm = '-'+param.slice(1);	// counter clockwise spindle speed
-	} else throw "Error: Parameter '"+ word +"' is not supported for the code '"+ Env.state+"'";
-};
-
-var goToStateM06 = function (param) {
-	word = param[0];
-	if (word == 'T') {
-		// change the tool if available
-		Env.dia = toolData[param.slice(1)];
-	} else throw "Error: Parameter '"+ word +"' is not supported for the code '"+ Env.state+"'";
-};
-
-/* --------------------  END   -  State Functions -------------------- */
-
-/* -------------------------------------------------------------------------- */
-
-/* -------------------- BEGIN - Add Points To Simulator-------------------- */
-
-var addPointsToSimulator = function (points) {
-	var i = 0;
-	// Adding points to Simulator
-	while(i < points.length){
-		Simulator.addPoint(points[i]["x"], points[i]["z"], points[i]["feed"], points[i]["rpm"], points[i]["dia"]);
-		i++;
-	}
-};
-
-/* -------------------- END  -  Add Points To Simulator -------------------- */
+}
