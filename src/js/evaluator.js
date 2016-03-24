@@ -2,6 +2,7 @@
   Initializing Environment
 */
 var Env = new Object();
+Env.x = 0; Env.z = 0;
 Env.dia = toolData[toolByDefault];
 Env.rapidSpeed = rapidSpeedByDefault;
 
@@ -36,6 +37,11 @@ var eobError = function () {
 	throw "Error: Unexpected End of Block code";
 }
 
+var envError = function () {
+	throw "Error: Insufficient environment data! \
+			Kindly set spindle speed and/or feed rate to proceed further.";
+}
+
 var addPoint = function (x, z, feed, rpm, dia) {
 	points.push({
 		x: x,
@@ -45,6 +51,16 @@ var addPoint = function (x, z, feed, rpm, dia) {
 		dia: dia
 	});
 };
+
+var resetEnv = function () {
+	hideAlertBoxes();	// reset the alert area
+	points = new Array(); lineNums = new Array();
+	tempData = new Object(); errors = false;
+	Env = new Object();
+	Env.x = 0; Env.z = 0;
+	Env.dia = toolData[toolByDefault];
+	Env.rapidSpeed = rapidSpeedByDefault;
+}
 
 function doNothing() { return null; }
 
@@ -66,7 +82,7 @@ var opCodeParamHandlers = {
 	},
 
 	G01 : function (param) {	
-		word = param[0]; tempData.f = Env.feed;
+		word = param[0];
 		if (word == 'X') {
 			tempData.x = param.slice(1);
 		} else if (word == 'Z') {
@@ -304,19 +320,27 @@ var eobHandlers = {
 	},
 
 	M30 : function (data) {
-		addPoint(Env.x, Env.z, Env.feed, 0, Env.dia); // set the spindle speed to zero
+		if (Env.hasOwnProperty('feed'))
+			addPoint(Env.x, Env.z, Env.feed, 0, Env.dia); // set the spindle speed to zero
+		else envError();
 	},
 
 	M05 : function (data) {
-		addPoint(Env.x, Env.z, Env.feed, 0, Env.dia);	// set spindle speed to zero
+		if (Env.hasOwnProperty('feed'))
+			addPoint(Env.x, Env.z, Env.feed, 0, Env.dia);	// set spindle speed to zero
+		else envError();
 	},
 
 	G00 : function (data) {
-		addPoint(data.x, data.z, data.f, Env.rpm, Env.dia);
+		if (Env.hasOwnProperty('rpm'))
+			addPoint(data.x, data.z, data.f, Env.rpm, Env.dia);
+		else envError();
 	},
 
 	G01 : function (data) {
-		addPoint(data.x, data.z, data.f, Env.rpm, Env.dia);
+		if (Env.hasOwnProperty('rpm'))
+			addPoint(data.x, data.z, data.f, Env.rpm, Env.dia);
+		else envError();
 	},
 
 	G02 : function (data) {
@@ -332,8 +356,10 @@ var eobHandlers = {
 	},
 
 	G28 : function (data) {
-		addPoint(data.x, data.z, data.f, Env.rpm, Env.dia);
-		addPoint(0, 0, data.feed, Env.rpm, Env.dia);
+		if (Env.hasOwnProperty('rpm')) {
+			addPoint(data.x, data.z, data.f, Env.rpm, Env.dia);
+			addPoint(0, 0, data.f, Env.rpm, Env.dia);
+		} else envError();
 	},
 
 	G71 : function (data) {
@@ -369,9 +395,7 @@ var eobHandlers = {
   Evaluating tokens
 */
 var getPoints = function (validTokens) {
-	points = new Array();	// empty the array to reset
-
-	hideAlertBoxes();	// reset the alert area
+	resetEnv();
 
 	try {
 		// loop through the tokens and evaluate
@@ -399,6 +423,8 @@ var getPoints = function (validTokens) {
 				/** 
 				   check if input data is suffice
 				*/
+				if(!isDataSuffice(Env.state, tempData))
+					throw "Data not sufficent for state: "+ Env.state;
 
 			   // update the Env (x, z, feed) with tempData info
 				if(tempData.hasOwnProperty('x'))
