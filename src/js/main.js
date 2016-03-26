@@ -56,7 +56,7 @@ var ARC_DIVISIONS = 5;
 /* -------------------- MAIN PROGRAM BEGIN -------------------- */
 function startEval (input) {
   // Hide all previous errors...
-  document.getElementById('errors').setAttribute('style', 'display: none');
+  hideAlertBoxes();
 
   // Process the input string
   var tokens = tokenizer(input);
@@ -88,18 +88,18 @@ function startEval (input) {
 
 /* -------------------- MAIN PROGRAM END -------------------- */
 
+/** Arcs defined for testing purpose */
+// arc1 = new Object();
+// arc1.center = { x:0 , z:0 };
+// arc1.start = { x:2 , z:0 };
+// arc1.end = { x:0 , z:2 };
 
-arc1 = new Object();
-arc1.center = { x:0 , z:0 };
-arc1.start = { x:2 , z:0 };
-arc1.end = { x:0 , z:2 };
+// arc2 = new Object();
+// arc2.center = { x:0 , z:0 };
+// arc2.start = { x:0 , z:-2 };
+// arc2.end = { x:-2 , z:0 };
 
-arc2 = new Object();
-arc2.center = { x:0 , z:0 };
-arc2.start = { x:0 , z:-2 };
-arc2.end = { x:-2 , z:0 };
-
-arc3 = new Object();
-arc3.center = { x:2, z:2 };
-arc3.start = { x:2 , z:0 };
-arc3.end = { x:0 , z:2 };
+// arc3 = new Object();
+// arc3.center = { x:2, z:2 };
+// arc3.start = { x:2 , z:0 };
+// arc3.end = { x:0 , z:2 };

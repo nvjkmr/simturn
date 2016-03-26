@@ -17,7 +17,7 @@ var controlCodes = new Array("G21", "G98", "M05", "M08", "M09", "M30");
 var isDigit = function(c) { return  /[0-9]/.test(c);  };
 
 var getLineNum = function(charNum, inputString) {
-  var count = 0, i = 0;
+  var count = 1, i = 0;
   while(i <= charNum)
     {
       if(inputString[i] == "\n") count++;
@@ -132,16 +132,11 @@ var tokenizer = function (input) {
       }
       else if (isWhiteSpace(c)) {
         advance();
-      }
-      else throw "Unexpected character '"+ c +"' at line " + getLineNum(i, inputString);
-
+      } else throw "Unexpected character '"+ c +"' at line " + getLineNum(i, inputString);
     }
-  }
-  catch(e) {
-    document.getElementById('errors').setAttribute("style", "display: block");
-    document.getElementById('errors').innerHTML = e;
-  }
-  finally {
+  } catch(e) {
+    throwExceptionsOnScreen('errors', e);
+  } finally {
     return tokens;
   }
 };

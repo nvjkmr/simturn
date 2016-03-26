@@ -16,31 +16,33 @@ var points = new Array(), lineNums = new Array(), tempData = new Object(), error
 */
 var throwExceptionsOnScreen = function (errorOrWarn, e) {
 	document.getElementById(errorOrWarn).setAttribute("style", "display: block");
-	document.getElementById(errorOrWarn).innerHTML = e;
-}
+	document.getElementById(errorOrWarn).innerHTML += e;
+};
 
 var hideAlertBoxes = function () {
 	document.getElementById('errors').setAttribute("style", "display: none");
 	document.getElementById('warnings').setAttribute("style", "display: none");
-}
+	document.getElementById('errors').innerHTML = null;
+	document.getElementById('warnings').innerHTML = null;	
+};
 
 var paramError = function (word) {
 	throw "Error: Parameter "+ word +" is not supported/invalid for the code '"+ Env.state+"'";
-}
+};
 
 var avoidNullState = function () {
 	if (!Env.hasOwnProperty('state'))
 		throw "Error: Block descriptor is undefined";
-}
+};
 
 var eobError = function () {
 	throw "Error: Unexpected End of Block code";
-}
+};
 
 var envError = function () {
 	throw "Error: Insufficient environment data! \
 			Kindly set spindle speed and/or feed rate to proceed further.";
-}
+};
 
 var addPoint = function (x, z, feed, rpm, dia) {
 	Env.x = Number(x); Env.z = Number(z); Env.feed = feed;
@@ -54,14 +56,13 @@ var addPoint = function (x, z, feed, rpm, dia) {
 };
 
 var resetEnv = function () {
-	hideAlertBoxes();	// reset the alert area
 	points = new Array(); lineNums = new Array();
 	tempData = new Object(); errors = false;
 	Env = new Object();
 	Env.x = 0; Env.z = 0;
 	Env.dia = toolData[toolByDefault];
 	Env.rapidSpeed = rapidSpeedByDefault;
-}
+};
 
 var getArcPoints = function (arc, numDivs) {
 	// extract the given data into variables
@@ -96,7 +97,7 @@ var getArcPoints = function (arc, numDivs) {
 		});
 	}
 	return arcPoints;
-}
+};
 
 var handleG02nG03 = function (arcInfo) {
 	var arc = new Object();
@@ -111,7 +112,7 @@ var handleG02nG03 = function (arcInfo) {
 	for(var i=0; i < arcData.length; i++) {
 		addPoint(arcData[i].x, arcData[i].z, Env.feed, Env.rpm, Env.dia);
 	}
-}
+};
 
 function doNothing() { return null; }
 
@@ -510,4 +511,4 @@ var getPoints = function (validTokens) {
 			return points;
 		else return null;
 	}
-}
+};
