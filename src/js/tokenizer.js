@@ -69,7 +69,7 @@ var tokenizer = function (input) {
   var tokens = [], c, i = 0, commentState = false, nonPara = false;
   var isWhiteSpace  = function(c) { return  /\s/.test(c); };
   var isNewline = function(c) { return /\n/.test(c); };
-  var isWord = function(c) { return /(O|N|G|X|P|U|Z|W|R|F|M|S|T)/.test(c); };
+  var isWord = function(c) { return /(O|N|G|X|P|Q|U|Z|W|R|F|M|S|T|I|K)/.test(c); };
   var advance = function() { return c = inputString[++i] };
   var next = function() { return inputString[i+1] };
   var addToken = function(type, value) {

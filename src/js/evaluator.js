@@ -25,7 +25,7 @@ var hideAlertBoxes = function () {
 }
 
 var paramError = function (word) {
-	throw "Error: Parameter '"+ word +"' is not supported for the code '"+ Env.state+"'";
+	throw "Error: Parameter "+ word +" is not supported/invalid for the code '"+ Env.state+"'";
 }
 
 var avoidNullState = function () {
@@ -43,6 +43,7 @@ var envError = function () {
 }
 
 var addPoint = function (x, z, feed, rpm, dia) {
+	Env.x = Number(x); Env.z = Number(z); Env.feed = feed;
 	points.push({
 		x: x,
 		z: z,
@@ -60,6 +61,56 @@ var resetEnv = function () {
 	Env.x = 0; Env.z = 0;
 	Env.dia = toolData[toolByDefault];
 	Env.rapidSpeed = rapidSpeedByDefault;
+}
+
+var getArcPoints = function (arc, numDivs) {
+	// extract the given data into variables
+	var arcCenter = arc.center; var arcStart = arc.start; var arcEnd = arc.end;
+	var arcPoints = [];		// initialize an empty points array
+	
+	if (arc.hasOwnProperty('radius'))	// check if radius is available
+		var arcRadius = arc.radius;
+	else arcRadius = Math.sqrt(Math.pow((arcStart.x - arcCenter.x), 2) + Math.pow((arcStart.z - arcCenter.z), 2)).toPrecision(3);
+
+	var startT = Math.atan2(arcStart.z - arcCenter.z, arcStart.x - arcCenter.x);
+	var endT = Math.atan2(arcEnd.z - arcCenter.z, arcEnd.x - arcCenter.x);
+
+	if (startT < 0) 
+		startT = (2 * Math.PI) + startT;
+	if (endT < 0)
+		endT = (2 * Math.PI) + endT;
+
+	lengthOfEachDiv = Math.abs(endT-startT)/numDivs;
+
+	for (var i = 0; i <= numDivs; i++) {
+		
+		if (startT > endT)
+			var t = (startT - (i*lengthOfEachDiv)).toPrecision(5);
+		else 
+			var t = (startT + (i*lengthOfEachDiv)).toPrecision(5);
+
+		arcPoints.push({
+			// adding zero at the end to avoid '-ve' zeros returned by Math.round method
+			x: (Math.round((((arcRadius * Math.cos(t)) + arcCenter.x).toPrecision(5)) * 100)/100) + 0,
+			z: (Math.round((((arcRadius * Math.sin(t)) + arcCenter.z).toPrecision(5)) * 100)/100) + 0
+		});
+	}
+	return arcPoints;
+}
+
+var handleG02nG03 = function (arcInfo) {
+	var arc = new Object();
+	arc.start = { x:Env.x, z:Env.z }; arc.end = { x:Number(arcInfo.x), z:Number(arcInfo.z) };
+	if (arcInfo.hasOwnProperty('r')) {
+		arc.radius = Number(arcInfo.r);
+		arc.center = {};
+	} else if(arcInfo.hasOwnProperty('i') && arcInfo.hasOwnProperty('k')) {
+		arc.center = { x: (Number(arcInfo.i) + arc.start.x) , z: (Number(arcInfo.k) + arc.start.z)};
+	} else throw paramError('to find the center of arc');
+	var arcData = getArcPoints(arc, ARC_DIVISIONS);
+	for(var i=0; i < arcData.length; i++) {
+		addPoint(arcData[i].x, arcData[i].z, Env.feed, Env.rpm, Env.dia);
+	}
 }
 
 function doNothing() { return null; }
@@ -344,11 +395,11 @@ var eobHandlers = {
 	},
 
 	G02 : function (data) {
-		// body...
+		handleG02nG03(data);
 	},
 
 	G03 : function (data) {
-		// body...
+		handleG02nG03(data);
 	},
 
 	G04 : function (data) {
@@ -420,19 +471,21 @@ var getPoints = function (validTokens) {
 				if (!eobHandlers.hasOwnProperty(Env.state))
 					eobError();	// if not a property then throw error
 
-				/** 
-				   check if input data is suffice
-				*/
+				// check if input data is suffice
 				if(!isDataSuffice(Env.state, tempData))
-					throw "Data not sufficent for state: "+ Env.state;
+					throw "Data not sufficent for the state: "+ Env.state;
 
 			   // update the Env (x, z, feed) with tempData info
-				if(tempData.hasOwnProperty('x'))
-					Env.x = tempData.x;
-				if (tempData.hasOwnProperty('z'))
-					Env.z = tempData.z;
-				if (tempData.hasOwnProperty('f'))
-					Env.feed = tempData.f;
+			   // if not G02 and G03 since x & y and the endpoints
+				// if (Env.state != 'G02' && Env.state != 'G03') {
+				//    	if(tempData.hasOwnProperty('x'))
+				// 		Env.x = Number(tempData.x);
+				// 	if (tempData.hasOwnProperty('z'))
+				// 		Env.z = Number(tempData.z);
+				// }
+
+				// if (tempData.hasOwnProperty('f'))
+				// 	Env.feed = tempData.f;
 
 				eobHandlers[Env.state](tempData);	// handle end of block
 				tempData = new Object();	// reset tempData

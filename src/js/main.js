@@ -46,6 +46,9 @@ var toolData = new Array(null, '.25', '.5', '1', '2', '4');
 // set default tool and rapid speed
 var toolByDefault = 2, rapidSpeedByDefault = 8000;
 
+// number of divisions to divide the G02 & G03 arc
+var ARC_DIVISIONS = 5;
+
 /* -------------------- End Globals -------------------- */
 
 /* -------------------------------------------------------------------------- */
@@ -84,3 +87,19 @@ function startEval (input) {
 }
 
 /* -------------------- MAIN PROGRAM END -------------------- */
+
+
+arc1 = new Object();
+arc1.center = { x:0 , z:0 };
+arc1.start = { x:2 , z:0 };
+arc1.end = { x:0 , z:2 };
+
+arc2 = new Object();
+arc2.center = { x:0 , z:0 };
+arc2.start = { x:0 , z:-2 };
+arc2.end = { x:-2 , z:0 };
+
+arc3 = new Object();
+arc3.center = { x:2, z:2 };
+arc3.start = { x:2 , z:0 };
+arc3.end = { x:0 , z:2 };

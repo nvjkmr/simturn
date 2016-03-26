@@ -11,13 +11,13 @@ stateDataSets = {
 	M05 : [],
 	G00 : ['xz'],
 	G01 : ['xzf'],
-	G02 : ['xzr', 'xzik', 'xzrf', 'xzikf'],
-	G03 : ['xzr', 'xzik', 'xzrf', 'xzikf'],
+	G02 : ['xzikf', 'xzrf', 'xzik', 'xzr'],
+	G03 : ['xzikf', 'xzrf', 'xzik', 'xzr'],
 	G04 : ['x', 'p'],
 	G28 : ['xzf'],
-	G71 : ['ur', 'pquwf', 'pquwfs'],
-	G72 : ['wr', 'pquwf', 'pquwfs'],
-	G74 : ['r', 'zqf', 'zqfs'],
+	G71 : ['pquwfs', 'pquwf', 'ur'],
+	G72 : ['pquwfs', 'pquwf', 'wr'],
+	G74 : ['zqfs', 'zqf', 'r'],
 	G92 : ['xzf'],
 	M03 : ['s'],
 	M04 : ['s'],
@@ -35,7 +35,7 @@ var isDataSuffice = function (state, data) {
 			if(!data.hasOwnProperty(checkStr[j]))
 				property = false;
 		}
-		if (property) return true;
+		if (property) return checkStr;
 	}
 	return false;
 };
