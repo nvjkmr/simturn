@@ -12,7 +12,44 @@
   <!-- <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300' rel='stylesheet' type='text/css'> -->
   <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
 </head>
-<body>
+<body id="body">
+<script id="shader-fs" type="x-shader/x-fragment">
+        varying highp vec2 vTextureCoord;
+        uniform sampler2D uSampler;
+        varying highp vec3 vLighting;
+
+        void main(void) {
+            highp vec4 texelColor = texture2D(uSampler, vTextureCoord);
+            gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
+        }
+  </script>
+   <script id="shader-vs" type="x-shader/x-vertex">
+      attribute vec3 aVertexPosition;
+      attribute highp vec3 aVertexNormal;
+      attribute vec2 aTextureCoord;
+
+      uniform highp mat4 uNormalMatrix;
+      uniform mat4 uMVMatrix;
+      uniform mat4 uPMatrix;
+
+      varying highp vec2 vTextureCoord;
+      varying highp vec3 vLighting;
+
+      void main(void) {
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+       vTextureCoord = aTextureCoord;
+
+        highp vec3 ambientLight = vec3(0.75,0.75,0.75);
+        highp vec3 directionalLightColor = vec3(1,1,1);
+        highp vec3 directionalVector = vec3(.7, 0, .7);
+        highp vec3 transformedNormal = normalize((uNormalMatrix * vec4(aVertexNormal, 1.0)).xyz);
+        highp float directional = dot(transformedNormal, directionalVector);
+        if( directional > 1.0 ) directional = 1.0;
+        directional = pow(directional,10.0);
+        vLighting = ambientLight + (directionalLightColor * directional);
+      }
+  </script>
+
   <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container-fluid">
           <div class="navbar-header">
@@ -28,7 +65,22 @@
     <div class="panel panel-default">
       <div class="panel-heading">3D Simulation of a CNC Lathe Machine</div>
       <div class="panel-body">
-        <h1 align="center">Here goes the WebGL display!!</h1>
+
+
+        <canvas style="border-style:solid;border-width:1;border-color:#aaaaaa;" id="glcanvas" width="1000" height="480">
+      Your browser doesn't appear to support the HTML5 <code>&lt;canvas&gt;</code> element.
+    </canvas>
+    <br><br>
+    <div style="">
+  <input type="button" value="&lt;&lt;" style="display: none;"></input>
+  <input type="button" id="playButton" value="||" style="display: none;"></input>
+  <input type="button" value="&gt;&gt;" style="display: none;"></input>
+  </div>
+  <div id="status"></div>
+  <div id="debug"></div>
+
+  <script src="turningDeploy.js"></script>
+
         <div class="panel-footer">
           <center>
             <div class="input-group">

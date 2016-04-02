@@ -17,12 +17,13 @@ var controlCodes = new Array("G21", "G98", "M05", "M08", "M09", "M30");
 var isDigit = function(c) { return  /[0-9]/.test(c);  };
 
 var getLineNum = function(charNum, inputString) {
-  var count = 1, i = 0;
-  while(i <= charNum)
+  var count = 1;
+  for(i = 0; i <= charNum; i++)
     {
       if(inputString[i] == "\n") count++;
-      i++;
     }
+    if(inputString[charNum] == '\n')
+      count--;
     return count;
 };
 
@@ -82,6 +83,11 @@ var tokenizer = function (input) {
   inputString = trim(input);
 
   try {
+    var tempLineNum;
+    if (tempLineNum = trailingNewlines(inputString)) {
+      throw "Alert: Extra newline character found at line: "+ getLineNum(tempLineNum, inputString);
+    }
+
     while(i < inputString.length){
       c = inputString[i];
 
@@ -99,6 +105,11 @@ var tokenizer = function (input) {
         var word = c, address = "", mode = "";
 
         if (word === 'G' || word === 'M' || word === 'O' || word === 'N') { nonPara = true; };
+
+        if (isNewline(next())) {
+          throw "Error: Parameter '"+ c +"' value is undefined";
+        }
+
         if (isWhiteSpace(next())) { advance() }
         if(next() === '-'){
           address += advance();

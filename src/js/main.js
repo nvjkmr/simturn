@@ -67,11 +67,22 @@ function startEval (input) {
   // Get array of points
   var pointsArray = getPoints(validTokens);
 
-  // Initialize simulator
-  // Simulator.init();
-
   // Add initial point
   // Simulator.addPoint(x, z, feed, rpm, dia);
+    // pointsArray = [];
+    // for (i = 0; 40 > i; ++i) pointsArray.push({x:31-.25 * i, z:10, feed:8E3, rpm:1500, dia:4}), 
+    //   pointsArray.push({x:51 - .5 * i, z:-50, feed:8E3, rpm:1500, dia:4});
+
+    alert(JSON.stringify(pointsArray));
+
+  window.loadJob = function() {
+    for(var i = 0; i < pointsArray.length; ++i)
+      window.addStep(pointsArray[i].x, 
+        pointsArray[i].z, pointsArray[i].feed, 
+        pointsArray[i].rpm, pointsArray[i].dia);
+  };
+
+  window.runSimulation();
 
   // Add points to simulator
   // addPointsToSimulator(pointsArray);
@@ -80,10 +91,8 @@ function startEval (input) {
   // Simulator.run();
 
   // Show the output over the screen  -- Dev
-  alert(JSON.stringify(tokens));
-  // alert(tokens.length)
-  // alert(tokens[0]["type"])
-  alert(JSON.stringify(pointsArray));
+  // alert(JSON.stringify(tokens));
+  // alert(JSON.stringify(pointsArray));
 }
 
 /* -------------------- MAIN PROGRAM END -------------------- */

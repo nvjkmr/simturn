@@ -44,7 +44,23 @@ var envError = function () {
 			Kindly set spindle speed and/or feed rate to proceed further.";
 };
 
+var checkFeed = function () {
+	if(!Env.hasOwnProperty('feed'))
+		envError();
+	else return true;
+}
+
+var checkRpm = function () {
+	if (!Env.hasOwnProperty('rpm'))
+		envError();
+	else return true;
+}
+
 var addPoint = function (x, z, feed, rpm, dia) {
+	if (x == null || z == null || feed == null || rpm == null || dia == null) {
+		throw "Error: Environment data is not set properly for the code "+ Env.state;
+	}
+	// convert into numbers and save the arguments
 	Env.x = Number(x); Env.z = Number(z); Env.feed = feed;
 	points.push({
 		x: x,
@@ -83,8 +99,7 @@ var getArcPoints = function (arc, numDivs) {
 
 	lengthOfEachDiv = Math.abs(endT-startT)/numDivs;
 
-	for (var i = 0; i <= numDivs; i++) {
-		
+	for (var i = 0; i <= numDivs; i++) {		
 		if (startT > endT)
 			var t = (startT - (i*lengthOfEachDiv)).toPrecision(5);
 		else 
@@ -104,7 +119,13 @@ var handleG02nG03 = function (arcInfo) {
 	arc.start = { x:Env.x, z:Env.z }; arc.end = { x:Number(arcInfo.x), z:Number(arcInfo.z) };
 	if (arcInfo.hasOwnProperty('r')) {
 		arc.radius = Number(arcInfo.r);
-		arc.center = {};
+		// q = Math.sqrt(Math.pow((arc.end.x - arc.start.x), 2) + Math.pow((arc.end.z - arc.start.z), 2));	// distance between start & end points
+		// var x3 = (arc.end.x - arc.start.x)/2, z3 = (arc.end.z - arc.start.z)/2;	// midpoint of the start and end points
+		// arc.center = {
+		// 	x: x3 - (Math.sqrt(Math.pow(arc.radius, 2) - Math.pow(q/2, 2)) * ((arc.start.z - arc.end.z)/q)).toPrecision(3),
+		// 	z: z3 - (Math.sqrt(Math.pow(arc.radius ,2) - Math.pow(q/2, 2)) * ((arc.end.x - arc.start.x)/q)).toPrecision(3)
+		// };
+		// alert("center: "+ arc.center.x + ", " + arc.center.z);
 	} else if(arcInfo.hasOwnProperty('i') && arcInfo.hasOwnProperty('k')) {
 		arc.center = { x: (Number(arcInfo.i) + arc.start.x) , z: (Number(arcInfo.k) + arc.start.z)};
 	} else throw paramError('to find the center of arc');
@@ -348,7 +369,7 @@ var controlCodeHandlers = {
 var eobHandlers = {
 	// states and functions
 	N : function (data) {
-		throw "Alert: Blank line found!";
+		throw "Alert: Blank numbered line found!";
 	},
 
 	O : function (data) {
@@ -372,27 +393,35 @@ var eobHandlers = {
 	},
 
 	M30 : function (data) {
-		if (Env.hasOwnProperty('feed'))
-			addPoint(Env.x, Env.z, Env.feed, 0, Env.dia); // set the spindle speed to zero
-		else envError();
+		checkFeed();
+		addPoint(Env.x, Env.z, Env.feed, 0, Env.dia); // set the spindle speed to zero
 	},
 
 	M05 : function (data) {
-		if (Env.hasOwnProperty('feed'))
-			addPoint(Env.x, Env.z, Env.feed, 0, Env.dia);	// set spindle speed to zero
-		else envError();
+		checkFeed();
+		addPoint(Env.x, Env.z, Env.feed, 0, Env.dia);	// set spindle speed to zero
 	},
 
-	G00 : function (data) {
-		if (Env.hasOwnProperty('rpm'))
+	G00 : function (data) {		// modal function
+		checkRpm();
+		if (data.hasOwnProperty('x') && data.hasOwnProperty('z'))
 			addPoint(data.x, data.z, data.f, Env.rpm, Env.dia);
-		else envError();
+		else if (data.hasOwnProperty('x'))
+			addPoint(data.x, Env.z, data.f, Env.rpm, Env.dia);
+		else if(data.hasOwnProperty('z'))
+			addPoint(Env.x, data.z, data.f, Env.rpm, Env.dia);
+		else throw "Unknown error!";
 	},
 
-	G01 : function (data) {
-		if (Env.hasOwnProperty('rpm'))
+	G01 : function (data) {		// modal function
+		checkRpm();
+		if (data.hasOwnProperty('x') && data.hasOwnProperty('z'))
 			addPoint(data.x, data.z, data.f, Env.rpm, Env.dia);
-		else envError();
+		else if (data.hasOwnProperty('x'))
+			addPoint(data.x, Env.z, data.f, Env.rpm, Env.dia);
+		else if(data.hasOwnProperty('z'))
+			addPoint(Env.x, data.z, data.f, Env.rpm, Env.dia);
+		else throw "Unknown error!";
 	},
 
 	G02 : function (data) {
@@ -408,14 +437,18 @@ var eobHandlers = {
 	},
 
 	G28 : function (data) {
-		if (Env.hasOwnProperty('rpm')) {
-			addPoint(data.x, data.z, data.f, Env.rpm, Env.dia);
-			addPoint(0, 0, data.f, Env.rpm, Env.dia);
-		} else envError();
+		checkRpm();
+		addPoint(data.x, data.z, data.f, Env.rpm, Env.dia);
+		addPoint(0, 0, data.f, Env.rpm, Env.dia);
 	},
 
 	G71 : function (data) {
-		// body...
+		//if (data.hasOwnProperty('s')) {
+		//	Env.feed = data.f;
+		//	Env.rpm = data.s;
+		//} else if (data.hasOwnProperty('f')) {
+		//	Env.feed = data.f;
+		//} else // handle u and r
 	},
 
 	G72 : function (data) {

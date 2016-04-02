@@ -9,8 +9,8 @@ stateDataSets = {
 	M09 : [],
 	M30 : [],
 	M05 : [],
-	G00 : ['xz'],
-	G01 : ['xzf'],
+	G00 : ['xz', 'x', 'z'],
+	G01 : ['xzf', 'x', 'z'],
 	G02 : ['xzikf', 'xzrf', 'xzik', 'xzr'],
 	G03 : ['xzikf', 'xzrf', 'xzik', 'xzr'],
 	G04 : ['x', 'p'],
@@ -23,6 +23,8 @@ stateDataSets = {
 	M04 : ['s'],
 	M06 : ['t']
 };
+
+/* --------------------  BEGIN - Data Checking  -------------------- */
 
 // function to check if required set of params exist
 var isDataSuffice = function (state, data) {
@@ -40,10 +42,44 @@ var isDataSuffice = function (state, data) {
 	return false;
 };
 
-function validateTokens (tokens) {
+var trailingNewlines = function (inputStr) {
+	for (var i = 0; i < inputStr.length; i++) {
+		if(inputStr[i] == '\n' && inputStr[i+1] == '\n')
+			return i+1;
+	}
+}
+
+var validateTokens = function (tokens) {
   // validate the tokens and throw exceptions if any errors
   // catch the exceptions and display errors on screen
 
   // return the valid tokens
   return tokens;
 }
+
+/* --------------------  END - Data Checking  -------------------- */
+
+/* -------------------------------------------------------------------------- */
+
+/* -------------------- BEGIN - G71 Processing -------------------- */
+
+var processedCodes = new Array();
+
+var convertG71Codes = function (codeBlock) {
+	// var startPosition = new Object();
+	// set startPosition.x and startPosition.z
+	// 
+};
+
+var getG71CodeBlock = function(tokensArray) {
+	return new Array();
+};
+
+var insertG01 = function () {
+	// processedCodes.push({
+	// type:
+	// value:
+	// });
+}
+
+/* --------------------  END - G71 Processing  -------------------- */
