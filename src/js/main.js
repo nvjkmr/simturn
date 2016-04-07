@@ -73,8 +73,6 @@ function startEval (input) {
     // for (i = 0; 40 > i; ++i) pointsArray.push({x:31-.25 * i, z:10, feed:8E3, rpm:1500, dia:4}), 
     //   pointsArray.push({x:51 - .5 * i, z:-50, feed:8E3, rpm:1500, dia:4});
 
-    alert(JSON.stringify(pointsArray));
-
   window.loadJob = function() {
     for(var i = 0; i < pointsArray.length; ++i)
       window.addStep(pointsArray[i].x, 
@@ -82,17 +80,12 @@ function startEval (input) {
         pointsArray[i].rpm, pointsArray[i].dia);
   };
 
-  window.runSimulation();
+  // window.runSimulation();
 
-  // Add points to simulator
-  // addPointsToSimulator(pointsArray);
-
-  // Run the simulator
-  // Simulator.run();
 
   // Show the output over the screen  -- Dev
   // alert(JSON.stringify(tokens));
-  // alert(JSON.stringify(pointsArray));
+  alert(JSON.stringify(pointsArray));
 }
 
 /* -------------------- MAIN PROGRAM END -------------------- */

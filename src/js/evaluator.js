@@ -135,6 +135,32 @@ var handleG02nG03 = function (arcInfo) {
 	}
 };
 
+var handleG90 = function (data, initial) {
+	// set feed if doesn't exist
+	if (!data.hasOwnProperty('f'))
+		data.f = Env.feed;
+	if(data.hasOwnProperty('z'))
+		Env.endZ = data.z;
+
+	if (data.hasOwnProperty('x') && data.hasOwnProperty('z')) {
+		// process data
+		addPoint(data.x, Env.z, data.f, Env.rpm, Env.dia); // move in x-axis
+		addPoint(Env.x, data.z, data.f, Env.rpm, Env.dia); // move in z-axis
+		addPoint(initial.x, initial.z, rapidSpeedByDefault, Env.rpm, Env.dia); // move to initial point
+		Env.feed = data.f; // reset feed
+	} else if (data.hasOwnProperty('z') && data.hasOwnProperty('r')) {
+		// handle taper cutting
+		// calculate starting and ending point
+		addPoint(initial.x, initial.z, rapidSpeedByDefault, Env.rpm, Env.dia);	// go to initial point
+		Env.feed = data.f; // reset feed
+	} else if (data.hasOwnProperty('x')) {
+		addPoint(data.x, Env.z, data.f, Env.rpm, Env.dia); // move in x axis
+		addPoint(Env.x, Env.endZ, data.f, Env.rpm, Env.dia); // move in z axis
+		addPoint(initial.x, initial.z, rapidSpeedByDefault, Env.rpm, Env.dia);	// go to initial point
+		Env.feed = data.f; // reset feed
+	}
+};
+
 function doNothing() { return null; }
 
 /**
@@ -433,11 +459,11 @@ var eobHandlers = {
 	G00 : function (data) {		// modal function
 		checkRpm();
 		if (data.hasOwnProperty('x') && data.hasOwnProperty('z'))
-			addPoint(data.x, data.z, data.f, Env.rpm, Env.dia);
+			addPoint(data.x, data.z, data.f, 0, Env.dia);
 		else if (data.hasOwnProperty('x'))
-			addPoint(data.x, Env.z, data.f, Env.rpm, Env.dia);
+			addPoint(data.x, Env.z, data.f, 0, Env.dia);
 		else if(data.hasOwnProperty('z'))
-			addPoint(Env.x, data.z, data.f, Env.rpm, Env.dia);
+			addPoint(Env.x, data.z, data.f, 0, Env.dia);
 		else throw "Unknown error!";
 	},
 
@@ -446,7 +472,7 @@ var eobHandlers = {
 		if (data.hasOwnProperty('x') && data.hasOwnProperty('z') && data.hasOwnProperty('f'))
 			addPoint(data.x, data.z, data.f, Env.rpm, Env.dia);
 		else if (data.hasOwnProperty('x') && data.hasOwnProperty('z') && checkFeed())
-			addPoint(data.x, data.z, Env.f, Env.rpm, Env.dia);
+			addPoint(data.x, data.z, Env.feed, Env.rpm, Env.dia);
 		else if (data.hasOwnProperty('x'))
 			addPoint(data.x, Env.z, data.f, Env.rpm, Env.dia);
 		else if(data.hasOwnProperty('z'))
@@ -467,9 +493,8 @@ var eobHandlers = {
 	},
 
 	G28 : function (data) {
-		checkRpm();
-		addPoint(data.x, data.z, data.f, Env.rpm, Env.dia);
-		addPoint(0, 0, data.f, Env.rpm, Env.dia);
+		addPoint(data.x, data.z, data.f, 0, Env.dia);
+		addPoint(0, 0, data.f, 0, Env.dia);
 	},
 
 	G70 : function (data) {
@@ -498,7 +523,11 @@ var eobHandlers = {
 	},
 
 	G90 : function (data) {
-		// body...
+		// save initial position
+		var initials = new Object();
+		initials.x = Env.x; initials.z = Env.z;
+		// process data
+		handleG90(data, initials);
 	},
 
 	M03 : function (data) {

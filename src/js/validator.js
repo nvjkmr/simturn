@@ -20,7 +20,7 @@ stateDataSets = {
 	G72 : ['pquwfs', 'pquwf', 'wr'],
 	G75 : ['xzpqf', 'r'],
 	G76 : ['pqr', 'xzpqf'],
-	G90 : ['xzrf', 'xzr'],
+	G90 : ['xzf', 'zr', 'x'],
 	M03 : ['s'],
 	M04 : ['s'],
 	M06 : ['t']
@@ -49,7 +49,7 @@ var trailingNewlines = function (inputStr) {
 		if(inputStr[i] == '\n' && inputStr[i+1] == '\n')
 			return i+1;
 	}
-}
+};
 
 var validateTokens = function (tokens) {
   // validate the tokens and throw exceptions if any errors
@@ -57,7 +57,7 @@ var validateTokens = function (tokens) {
 
   // return the valid tokens
   return tokens;
-}
+};
 
 /* --------------------  END - Data Checking  -------------------- */
 
