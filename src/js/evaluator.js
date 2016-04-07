@@ -233,6 +233,15 @@ var opCodeParamHandlers = {
 		} else paramError(word);
 	},
 
+	G70 : function (param) {
+		word = param[0];
+		if (word == 'P') {
+			tempData.p = param.slice(1);
+		} else if (word == 'Q') {
+			tempData.q = param.slice(1);
+		} else paramError(word);
+	},
+
 	G71 : function (param) {
 		word = param[0];
 		if (word == 'P') {
@@ -255,9 +264,9 @@ var opCodeParamHandlers = {
 	G72 : function (param) {
 		word = param[0];
 		if (word == 'U') {
-			tempData.u = param.slice(1);
+			tempData.x = Number(Env.x) + Number(param.slice(1));
 		} else if (word == 'W') {
-			tempData.w = param.slice(1);
+			tempData.z = Number(Env.z) + Number(param.slice(1));
 		} else if (word == 'R') {
 			tempData.r = param.slice(1);
 		} else if (word == 'P') {
@@ -267,30 +276,49 @@ var opCodeParamHandlers = {
 		} else paramError(word);
 	},
 
-	G74 : function (param) {
+	G75 : function (param) {
 		word = param[0];
-		if (word == 'W') {
-			tempData.w = param.slice(1);
-		} else if (word == 'R') {
+		if (word == 'R') {
 			tempData.r = param.slice(1);
 		} else if (word == 'P') {
 			tempData.p = param.slice(1);
 		} else if (word == 'Q') {
 			tempData.q = param.slice(1);
-		} else if (word == 'U') {
-			tempData.u = param.slice(1);
-		} else if (word == 'W') {
-			tempData.w = param.slice(1);
-		} else if (word == 'S') {
-			tempData.s = param.slice(1);
+		} else if (word == 'X') {
+			tempData.x = param.slice(1);
+		} else if (word == 'Z') {
+			tempData.z = param.slice(1);
 		} else if (word == 'F') {
 			tempData.f = param.slice(1);
 		} else paramError(word);
 	},
 
-	G92 : function (param) {
+	G76 : function (param) {
 		word = param[0];
-		if (word == 'X') {
+		if (word == 'P') {
+			tempData.p = param.slice(1);
+		} else if (word == 'Q') {
+			tempData.q = param.slice(1);
+		} else if (word == 'R') {
+			tempData.r = param.slice(1);
+		} else if (word == 'X') {
+			tempData.x = param.slice(1);
+		} else if (word == 'Z') {
+			tempData.z = param.slice(1);
+		} else if (word == 'F') {
+			tempData.f = param.slice(1);
+		} else paramError(word);
+	},
+
+	G90 : function (param) {
+		word = param[0];
+		if (word == 'U') {
+			tempData.x = Number(Env.x) + Number(param.slice(1));
+		} else if (word == 'W') {
+			tempData.z = Number(Env.z) + Number(param.slice(1));
+		} else if (word == 'R') {
+			tempData.r = param.slice(1);
+		} else if (word == 'X') {
 			tempData.x = param.slice(1);
 		} else if (word == 'Z') {
 			tempData.z = param.slice(1);
@@ -415,8 +443,10 @@ var eobHandlers = {
 
 	G01 : function (data) {		// modal function
 		checkRpm();
-		if (data.hasOwnProperty('x') && data.hasOwnProperty('z'))
+		if (data.hasOwnProperty('x') && data.hasOwnProperty('z') && data.hasOwnProperty('f'))
 			addPoint(data.x, data.z, data.f, Env.rpm, Env.dia);
+		else if (data.hasOwnProperty('x') && data.hasOwnProperty('z') && checkFeed())
+			addPoint(data.x, data.z, Env.f, Env.rpm, Env.dia);
 		else if (data.hasOwnProperty('x'))
 			addPoint(data.x, Env.z, data.f, Env.rpm, Env.dia);
 		else if(data.hasOwnProperty('z'))
@@ -442,6 +472,10 @@ var eobHandlers = {
 		addPoint(0, 0, data.f, Env.rpm, Env.dia);
 	},
 
+	G70 : function (data) {
+		// body...
+	},
+
 	G71 : function (data) {
 		//if (data.hasOwnProperty('s')) {
 		//	Env.feed = data.f;
@@ -455,11 +489,15 @@ var eobHandlers = {
 		// body...
 	},
 
-	G74 : function (data) {
+	G75 : function (data) {
 		// body...
 	},
 
-	G92 : function (data) {
+	G76 : function (data) {
+		// body...
+	},
+
+	G90 : function (data) {
 		// body...
 	},
 
@@ -508,18 +546,6 @@ var getPoints = function (validTokens) {
 				// check if input data is suffice
 				if(!isDataSuffice(Env.state, tempData))
 					throw "Data not sufficent for the state: "+ Env.state;
-
-			   // update the Env (x, z, feed) with tempData info
-			   // if not G02 and G03 since x & y and the endpoints
-				// if (Env.state != 'G02' && Env.state != 'G03') {
-				//    	if(tempData.hasOwnProperty('x'))
-				// 		Env.x = Number(tempData.x);
-				// 	if (tempData.hasOwnProperty('z'))
-				// 		Env.z = Number(tempData.z);
-				// }
-
-				// if (tempData.hasOwnProperty('f'))
-				// 	Env.feed = tempData.f;
 
 				eobHandlers[Env.state](tempData);	// handle end of block
 				tempData = new Object();	// reset tempData

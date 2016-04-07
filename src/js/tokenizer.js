@@ -2,8 +2,9 @@
 
 // Block descriptors (parameterized codes) which are supported by program
 var supportedCodes = new Array("G00", "G01", "G02", "G03", "G04", 
-                              "G28", "G71", "G72", "G74", "G92", 
-                              "M03", "M04", "M06");
+                              "G28", "G71", "G72", "G75", "M03", 
+                              "M04", "M06", "G90", "G76", "G70"
+                              );
 
 // Codes which don't have parameters
 var controlCodes = new Array("G21", "G98", "M05", "M08", "M09", "M30");
