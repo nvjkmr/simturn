@@ -20,7 +20,7 @@ stateDataSets = {
 	G72 : ['pquwfs', 'pquwf', 'wr'],
 	G75 : ['xzpqf', 'r'],
 	G76 : ['pqr', 'xzpqf'],
-	G90 : ['xzf', 'zr', 'x'],
+	G90 : ['xzrf', 'xzf', 'zr', 'x'],
 	M03 : ['s'],
 	M04 : ['s'],
 	M06 : ['t']

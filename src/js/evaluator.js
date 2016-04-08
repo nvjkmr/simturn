@@ -61,13 +61,13 @@ var addPoint = function (x, z, feed, rpm, dia) {
 		throw "Error: Environment data is not set properly for the code "+ Env.state;
 	}
 	// convert into numbers and save the arguments
-	Env.x = Number(x); Env.z = Number(z); Env.feed = feed;
+	Env.x = Number(x); Env.z = Number(z); Env.feed = Number(feed); Env.dia = Number(dia);
 	points.push({
-		x: x,
-		z: z,
-		feed: feed,
-		rpm: rpm,
-		dia: dia
+		x: Number(x),
+		z: Number(z),
+		feed: Number(feed),
+		rpm: Number(rpm),
+		dia: Number(dia)
 	});
 };
 
@@ -136,16 +136,28 @@ var handleG02nG03 = function (arcInfo) {
 };
 
 var handleG90 = function (data, initial) {
+	// addPoint(41, 5, 2E4, 1500, 4);
+
+	// addPoint(31,5,70,1500,2);
+	// addPoint(31,-30,70,1500,2);
+	// addPoint(32,-30,70,1500,2);
+	// addPoint(32,5,70,1500,2);
+	// addPoint(30,5,70,1500,2);
+	//for (var i = 0; 40 > i; i++) addPoint(31- .25 * i, 10, '8E3', '1500', 4), addPoint(51 - .5 * i, -50, '8E3', '1500', 4);
+	//	addPoint(41, 10, '2E4', '1500', 4);
+
+	// return;
 	// set feed if doesn't exist
 	if (!data.hasOwnProperty('f'))
 		data.f = Env.feed;
 	if(data.hasOwnProperty('z'))
-		Env.endZ = data.z;
+		Env.endZ = Number(data.z);
 
 	if (data.hasOwnProperty('x') && data.hasOwnProperty('z')) {
 		// process data
 		addPoint(data.x, Env.z, data.f, Env.rpm, Env.dia); // move in x-axis
 		addPoint(Env.x, data.z, data.f, Env.rpm, Env.dia); // move in z-axis
+		addPoint(initial.x, Env.z, data.f, Env.rpm, Env.dia);	// move in x axis
 		addPoint(initial.x, initial.z, rapidSpeedByDefault, Env.rpm, Env.dia); // move to initial point
 		Env.feed = data.f; // reset feed
 	} else if (data.hasOwnProperty('z') && data.hasOwnProperty('r')) {
@@ -156,6 +168,7 @@ var handleG90 = function (data, initial) {
 	} else if (data.hasOwnProperty('x')) {
 		addPoint(data.x, Env.z, data.f, Env.rpm, Env.dia); // move in x axis
 		addPoint(Env.x, Env.endZ, data.f, Env.rpm, Env.dia); // move in z axis
+		addPoint(initial.x, Env.z, data.f, Env.rpm, Env.dia);	// move in x axis
 		addPoint(initial.x, initial.z, rapidSpeedByDefault, Env.rpm, Env.dia);	// go to initial point
 		Env.feed = data.f; // reset feed
 	}

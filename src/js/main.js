@@ -80,12 +80,12 @@ function startEval (input) {
         pointsArray[i].rpm, pointsArray[i].dia);
   };
 
-  // window.runSimulation();
+  window.runSimulation();
 
 
   // Show the output over the screen  -- Dev
   // alert(JSON.stringify(tokens));
-  alert(JSON.stringify(pointsArray));
+  // alert(JSON.stringify(pointsArray));
 }
 
 /* -------------------- MAIN PROGRAM END -------------------- */
