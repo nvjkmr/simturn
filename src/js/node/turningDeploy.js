@@ -1,4 +1,4 @@
-var imagePath = 'js/node/';
+var imagePath = 'images/';
 
 ! function(f) {
     "object" == typeof exports && "undefined" != typeof module ? module.P = f() : "function" == typeof define && define.Sc ? define([], f) : ("undefined" != typeof window ? window : "undefined" != typeof global ? global : "undefined" != typeof self ? self : this).Hb = f()
@@ -2510,6 +2510,12 @@ document.getElementById("playButton").onclick = function() {
 };
 
 // window.loadJob = function() {
+    //Internal
+    // window.addStep(8, 10, 2E4, 1500, 4);
+    // for (i = 0; 40 > i; ++i) window.addStep(8 + .5 * i, 10, 8E3, 1500, 4), window.addStep(8, -50, 8E3, 1500, 4);
+    // window.addStep(8, 10, 2E4, 1500, 4);
+    // return;
+
 //     window.addStep(41, 10, 2E4, 1500, 4);
 //     for (i = 0; 40 > i; ++i) window.addStep(31 - .25 * i, 10, 8E3, 1500, 4), window.addStep(51 - .5 * i, -50, 8E3, 1500, 4);
 //     window.addStep(41, 10, 2E4, 1500, 4);

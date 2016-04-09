@@ -45,7 +45,7 @@
         highp vec3 transformedNormal = normalize((uNormalMatrix * vec4(aVertexNormal, 1.0)).xyz);
         highp float directional = dot(transformedNormal, directionalVector);
         if( directional > 1.0 ) directional = 1.0;
-        directional = pow(directional,10.0);
+        directional = pow(directional,2.0);
         vLighting = ambientLight + (directionalLightColor * directional);
       }
   </script>
@@ -63,13 +63,15 @@
   <div class="container">
 
     <div class="panel panel-default">
-      <div class="panel-heading">3D Simulation of a CNC Lathe Machine</div>
+      <div class="panel-heading">3D Simulation of a CNC Lathe Turning Machine</div>
       <div class="panel-body">
 
-
+      <center>
         <canvas style="border-style:solid;border-width:1;border-color:#aaaaaa;" id="glcanvas" width="1000" height="480">
       Your browser doesn't appear to support the HTML5 <code>&lt;canvas&gt;</code> element.
-    </canvas>
+        </canvas>
+      </center>
+
     <br><br>
     <div style="">
   <input type="button" value="&lt;&lt;" style="display: none;"></input>

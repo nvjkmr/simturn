@@ -137,36 +137,38 @@ var handleG02nG03 = function (arcInfo) {
 
 var handleG90 = function (data, initial) {
 	// addPoint(41, 5, 2E4, 1500, 4);
-
-	// addPoint(31,5,70,1500,2);
-	// addPoint(31,-30,70,1500,2);
-	// addPoint(32,-30,70,1500,2);
-	// addPoint(32,5,70,1500,2);
-	// addPoint(30,5,70,1500,2);
 	//for (var i = 0; 40 > i; i++) addPoint(31- .25 * i, 10, '8E3', '1500', 4), addPoint(51 - .5 * i, -50, '8E3', '1500', 4);
 	//	addPoint(41, 10, '2E4', '1500', 4);
-
 	// return;
+	
 	// set feed if doesn't exist
 	if (!data.hasOwnProperty('f'))
 		data.f = Env.feed;
 	if(data.hasOwnProperty('z'))
 		Env.endZ = Number(data.z);
 
+	Env.taperStart = initial.x;
 	if (data.hasOwnProperty('x') && data.hasOwnProperty('z')) {
 		// process data
 		addPoint(data.x, Env.z, data.f, Env.rpm, Env.dia); // move in x-axis
+		Env.taperStart = data.x;	// update taper start
 		addPoint(Env.x, data.z, data.f, Env.rpm, Env.dia); // move in z-axis
 		addPoint(initial.x, Env.z, data.f, Env.rpm, Env.dia);	// move in x axis
 		addPoint(initial.x, initial.z, rapidSpeedByDefault, Env.rpm, Env.dia); // move to initial point
 		Env.feed = data.f; // reset feed
 	} else if (data.hasOwnProperty('z') && data.hasOwnProperty('r')) {
 		// handle taper cutting
-		// calculate starting and ending point
+		// if(Number(data.r) < 0) {
+			data.r = Number(Env.taperStart) + Number(data.r);
+		// }
+		addPoint(data.r, Env.z, Env.feed, Env.rpm, Env.dia);	// starting point
+		addPoint(Env.taperStart, data.z, Env.feed, Env.rpm, Env.dia);	// ending point
+		addPoint(initial.x, Env.z, Env.feed, Env.rpm, Env.dia);	// move in x-axis
 		addPoint(initial.x, initial.z, rapidSpeedByDefault, Env.rpm, Env.dia);	// go to initial point
 		Env.feed = data.f; // reset feed
 	} else if (data.hasOwnProperty('x')) {
 		addPoint(data.x, Env.z, data.f, Env.rpm, Env.dia); // move in x axis
+		Env.taperStart = data.x;
 		addPoint(Env.x, Env.endZ, data.f, Env.rpm, Env.dia); // move in z axis
 		addPoint(initial.x, Env.z, data.f, Env.rpm, Env.dia);	// move in x axis
 		addPoint(initial.x, initial.z, rapidSpeedByDefault, Env.rpm, Env.dia);	// go to initial point
