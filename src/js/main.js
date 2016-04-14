@@ -44,10 +44,12 @@ function updateProgress(evt) {
 var toolData = new Array(null, '.25', '.5', '1', '2', '4');
 
 // set default tool and rapid speed
-var toolByDefault = 2, rapidSpeedByDefault = 8000;
+var toolByDefault = 2, RAPID_SPEED = 8000;
 
 // number of divisions to divide the G02 & G03 arc
 var ARC_DIVISIONS = 5;
+
+var WORKPIECE_RADIUS = 32;  // Radius of the workpiece which is being cut
 
 /* -------------------- End Globals -------------------- */
 
@@ -64,14 +66,23 @@ function startEval (input) {
   // Validate the tokens
   var validTokens = validateTokens(tokens);
 
+  // test getting line block
+  // alert(JSON.stringify(getLineBlock(validTokens, 'N1')));
+
   // Get array of points
   var pointsArray = getPoints(validTokens);
 
-  // Add initial point
-  // Simulator.addPoint(x, z, feed, rpm, dia);
-    // pointsArray = [];
-    // for (i = 0; 40 > i; ++i) pointsArray.push({x:31-.25 * i, z:10, feed:8E3, rpm:1500, dia:4}), 
-    //   pointsArray.push({x:51 - .5 * i, z:-50, feed:8E3, rpm:1500, dia:4});
+  var pointsArray = [{"x":0,"z":0,"feed":8000,"rpm":0,"dia":0.5},
+                    {"x":0,"z":0,"feed":8000,"rpm":0,"dia":0.5},
+                    {"x":40,"z":10,"feed":500,"rpm":0,"dia":4},
+                    {"x":40,"z":-15,"feed":300,"rpm":0,"dia":4},
+                    {"x":32,"z":-15.1,"feed":200,"rpm":1800,"dia":4},
+                    {"x":28,"z":-15,"feed":100,"rpm":1800,"dia":4},
+                    {"x":40,"z":-15.1,"feed":100,"rpm":1800,"dia":4}];
+
+  // pointsArray = [];
+  // for (i = 0; 40 > i; ++i) pointsArray.push({x:31-.25 * i, z:10, feed:8E3, rpm:1500, dia:4}), 
+  //   pointsArray.push({x:51 - .5 * i, z:-50, feed:8E3, rpm:1500, dia:4});
 
   window.loadJob = function() {
     for(var i = 0; i < pointsArray.length; ++i)
@@ -82,26 +93,9 @@ function startEval (input) {
 
   window.runSimulation();
 
-
   // Show the output over the screen  -- Dev
   // alert(JSON.stringify(tokens));
   // alert(JSON.stringify(pointsArray));
 }
 
 /* -------------------- MAIN PROGRAM END -------------------- */
-
-/** Arcs defined for testing purpose */
-// arc1 = new Object();
-// arc1.center = { x:0 , z:0 };
-// arc1.start = { x:2 , z:0 };
-// arc1.end = { x:0 , z:2 };
-
-// arc2 = new Object();
-// arc2.center = { x:0 , z:0 };
-// arc2.start = { x:0 , z:-2 };
-// arc2.end = { x:-2 , z:0 };
-
-// arc3 = new Object();
-// arc3.center = { x:2, z:2 };
-// arc3.start = { x:2 , z:0 };
-// arc3.end = { x:0 , z:2 };

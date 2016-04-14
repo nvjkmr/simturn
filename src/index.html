@@ -45,7 +45,7 @@
         highp vec3 transformedNormal = normalize((uNormalMatrix * vec4(aVertexNormal, 1.0)).xyz);
         highp float directional = dot(transformedNormal, directionalVector);
         if( directional > 1.0 ) directional = 1.0;
-        directional = pow(directional,2.0);
+        directional = pow(directional,1.5);
         vLighting = ambientLight + (directionalLightColor * directional);
       }
   </script>

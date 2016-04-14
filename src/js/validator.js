@@ -65,16 +65,9 @@ var validateTokens = function (tokens) {
 
 /* -------------------- BEGIN - G71 Processing -------------------- */
 
-var processedCodes = new Array();
-
-var convertG71Codes = function (codeBlock) {
-	// var startPosition = new Object();
-	// set startPosition.x and startPosition.z
-	// 
-};
-
-var getG71CodeBlock = function(tokensArray) {
-	return new Array();
+var processG71 = function(tokensArray) {
+	var processedArray = new Array();
+	return processedArray;
 };
 
 var insertG01 = function () {
@@ -82,6 +75,25 @@ var insertG01 = function () {
 	// type:
 	// value:
 	// });
-}
+};
+
+var replaceBlock = function (startIndex, endIndex, replaceText) {
+	// body...
+};
+
+var getLineBlock = function (tokens, line) {
+	var lineBlock = new Array();
+	for (var i = 0; i < tokens.length; i++) {
+		if (tokens[i].value == line) 
+			var record = true;
+		if (record) {
+			lineBlock.push(tokens[i]);
+			lineBlock[lineBlock.length - 1].index = i+1;
+			if (tokens[i+1].value[0] == 'N')
+				break;
+		}
+	}
+	return lineBlock;
+};
 
 /* --------------------  END - G71 Processing  -------------------- */

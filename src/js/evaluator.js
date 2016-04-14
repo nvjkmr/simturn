@@ -4,7 +4,7 @@
 var Env = new Object();
 Env.x = 0; Env.z = 0;
 Env.dia = toolData[toolByDefault];
-Env.rapidSpeed = rapidSpeedByDefault;
+Env.rapidSpeed = RAPID_SPEED;
 
 /**
   Initializing variables
@@ -61,7 +61,7 @@ var addPoint = function (x, z, feed, rpm, dia) {
 		throw "Error: Environment data is not set properly for the code "+ Env.state;
 	}
 	// convert into numbers and save the arguments
-	Env.x = Number(x); Env.z = Number(z); Env.feed = Number(feed); Env.dia = Number(dia);
+	Env.x = Number(x); Env.z = Number(z); Env.dia = Number(dia);
 	points.push({
 		x: Number(x),
 		z: Number(z),
@@ -77,8 +77,24 @@ var resetEnv = function () {
 	Env = new Object();
 	Env.x = 0; Env.z = 0;
 	Env.dia = toolData[toolByDefault];
-	Env.rapidSpeed = rapidSpeedByDefault;
+	Env.rapidSpeed = RAPID_SPEED;
 };
+
+/** Arcs defined for testing purpose */
+// arc1 = new Object();
+// arc1.center = { x:0 , z:0 };
+// arc1.start = { x:2 , z:0 };
+// arc1.end = { x:0 , z:2 };
+
+// arc2 = new Object();
+// arc2.center = { x:0 , z:0 };
+// arc2.start = { x:0 , z:-2 };
+// arc2.end = { x:-2 , z:0 };
+
+// arc3 = new Object();
+// arc3.center = { x:2, z:2 };
+// arc3.start = { x:2 , z:0 };
+// arc3.end = { x:0 , z:2 };
 
 var getArcPoints = function (arc, numDivs) {
 	// extract the given data into variables
@@ -87,7 +103,8 @@ var getArcPoints = function (arc, numDivs) {
 	
 	if (arc.hasOwnProperty('radius'))	// check if radius is available
 		var arcRadius = arc.radius;
-	else arcRadius = Math.sqrt(Math.pow((arcStart.x - arcCenter.x), 2) + Math.pow((arcStart.z - arcCenter.z), 2)).toPrecision(3);
+	else arcRadius = Math.sqrt(Math.pow((arcStart.x - arcCenter.x), 2) + 
+		Math.pow((arcStart.z - arcCenter.z), 2)).toPrecision(3);
 
 	var startT = Math.atan2(arcStart.z - arcCenter.z, arcStart.x - arcCenter.x);
 	var endT = Math.atan2(arcEnd.z - arcCenter.z, arcEnd.x - arcCenter.x);
@@ -119,11 +136,14 @@ var handleG02nG03 = function (arcInfo) {
 	arc.start = { x:Env.x, z:Env.z }; arc.end = { x:Number(arcInfo.x), z:Number(arcInfo.z) };
 	if (arcInfo.hasOwnProperty('r')) {
 		arc.radius = Number(arcInfo.r);
-		// q = Math.sqrt(Math.pow((arc.end.x - arc.start.x), 2) + Math.pow((arc.end.z - arc.start.z), 2));	// distance between start & end points
-		// var x3 = (arc.end.x - arc.start.x)/2, z3 = (arc.end.z - arc.start.z)/2;	// midpoint of the start and end points
+		// q = Math.sqrt(Math.pow((arc.end.x - arc.start.x), 2) + Math.pow((arc.end.z - arc.start.z), 2));	
+		// distance between start & end points
+		// var x3 = (arc.end.x - arc.start.x)/2, z3 = (arc.end.z - arc.start.z)/2;
 		// arc.center = {
-		// 	x: x3 - (Math.sqrt(Math.pow(arc.radius, 2) - Math.pow(q/2, 2)) * ((arc.start.z - arc.end.z)/q)).toPrecision(3),
-		// 	z: z3 - (Math.sqrt(Math.pow(arc.radius ,2) - Math.pow(q/2, 2)) * ((arc.end.x - arc.start.x)/q)).toPrecision(3)
+		// 	x: x3 - (Math.sqrt(Math.pow(arc.radius, 2) - 
+		// Math.pow(q/2, 2)) * ((arc.start.z - arc.end.z)/q)).toPrecision(3),
+		// 	z: z3 - (Math.sqrt(Math.pow(arc.radius ,2) - 
+		// Math.pow(q/2, 2)) * ((arc.end.x - arc.start.x)/q)).toPrecision(3)
 		// };
 		// alert("center: "+ arc.center.x + ", " + arc.center.z);
 	} else if(arcInfo.hasOwnProperty('i') && arcInfo.hasOwnProperty('k')) {
@@ -135,12 +155,44 @@ var handleG02nG03 = function (arcInfo) {
 	}
 };
 
+var handleG75 = function (data, grooveStart) {
+	if (!data.hasOwnProperty('f')) {
+		data.f = Env.feed;
+	}
+
+	if (data.hasOwnProperty('r')) {
+		// set retract distance
+		Env.r = data.r;
+		Env.firstLineG75 = true;
+	} else if (data.hasOwnProperty('x') && data.hasOwnProperty('z') 
+		&& data.hasOwnProperty('p') && data.hasOwnProperty('q') 
+		&& data.hasOwnProperty('f') && Env.firstLineG75 == true) {
+		// get the diameter of the cutting tool
+		// is equal to the groove width
+		// if not then throw error!
+
+		// addPoint(WORKPIECE_RADIUS, Env.z, data.f, Env.rpm, Env.dia);	// pre-peck
+
+		for (var cycle_z = data.q; cycle_z > data.z; cycle_z = cycle_z - data.q) {
+			var groove = new Object();
+			groove.depth = WORKPIECE_RADIUS;
+			groove.start_x = WORKPIECE_RADIUS;
+
+			for (var peckDepth = groove.depth - data.p; peckDepth > data.x; peckDepth = peckDepth - data.p) {
+				addPoint(peckDepth, Env.z, data.f, Env.rpm, Env.dia);	// peck
+				// addPoint(peckDepth + Number(Env.r), Env.z, Env.rapidSpeed, Env.rpm, Env.dia);
+			}
+
+			// retract in x-axis
+			addPoint(groove.start_x, Env.z, Env.rapidSpeed, Env.rpm, Env.dia);
+
+			// update starting point
+			addPoint(groove.start_x, Env.z - data.q, Env.rapidSpeed, Env.rpm, Env.dia);
+		}
+	}
+}
+
 var handleG90 = function (data, initial) {
-	// addPoint(41, 5, 2E4, 1500, 4);
-	//for (var i = 0; 40 > i; i++) addPoint(31- .25 * i, 10, '8E3', '1500', 4), addPoint(51 - .5 * i, -50, '8E3', '1500', 4);
-	//	addPoint(41, 10, '2E4', '1500', 4);
-	// return;
-	
 	// set feed if doesn't exist
 	if (!data.hasOwnProperty('f'))
 		data.f = Env.feed;
@@ -154,7 +206,7 @@ var handleG90 = function (data, initial) {
 		Env.taperStart = data.x;	// update taper start
 		addPoint(Env.x, data.z, data.f, Env.rpm, Env.dia); // move in z-axis
 		addPoint(initial.x, Env.z, data.f, Env.rpm, Env.dia);	// move in x axis
-		addPoint(initial.x, initial.z, rapidSpeedByDefault, Env.rpm, Env.dia); // move to initial point
+		addPoint(initial.x, initial.z, Env.rapidSpeed, Env.rpm, Env.dia); // move to initial point
 		Env.feed = data.f; // reset feed
 	} else if (data.hasOwnProperty('z') && data.hasOwnProperty('r')) {
 		// handle taper cutting
@@ -164,14 +216,14 @@ var handleG90 = function (data, initial) {
 		addPoint(data.r, Env.z, Env.feed, Env.rpm, Env.dia);	// starting point
 		addPoint(Env.taperStart, data.z, Env.feed, Env.rpm, Env.dia);	// ending point
 		addPoint(initial.x, Env.z, Env.feed, Env.rpm, Env.dia);	// move in x-axis
-		addPoint(initial.x, initial.z, rapidSpeedByDefault, Env.rpm, Env.dia);	// go to initial point
+		addPoint(initial.x, initial.z, Env.rapidSpeed, Env.rpm, Env.dia);	// go to initial point
 		Env.feed = data.f; // reset feed
 	} else if (data.hasOwnProperty('x')) {
 		addPoint(data.x, Env.z, data.f, Env.rpm, Env.dia); // move in x axis
 		Env.taperStart = data.x;
 		addPoint(Env.x, Env.endZ, data.f, Env.rpm, Env.dia); // move in z axis
 		addPoint(initial.x, Env.z, data.f, Env.rpm, Env.dia);	// move in x axis
-		addPoint(initial.x, initial.z, rapidSpeedByDefault, Env.rpm, Env.dia);	// go to initial point
+		addPoint(initial.x, initial.z, Env.rapidSpeed, Env.rpm, Env.dia);	// go to initial point
 		Env.feed = data.f; // reset feed
 	}
 };
@@ -462,13 +514,11 @@ var eobHandlers = {
 	},
 
 	M30 : function (data) {
-		checkFeed();
-		addPoint(Env.x, Env.z, Env.feed, 0, Env.dia); // set the spindle speed to zero
+		addPoint(Env.x, Env.z, 0, 0, 0); // set the rpm, feed, dia to zero
 	},
 
 	M05 : function (data) {
-		checkFeed();
-		addPoint(Env.x, Env.z, Env.feed, 0, Env.dia);	// set spindle speed to zero
+		addPoint(Env.x, Env.z, Env.rapidSpeed, 0, Env.dia);	// set spindle speed to zero
 	},
 
 	G00 : function (data) {		// modal function
@@ -530,7 +580,9 @@ var eobHandlers = {
 	},
 
 	G75 : function (data) {
-		// body...
+		var initials = new Object();
+		initials.x = Env.x; initials.z = Env.z;
+		handleG75(data, initials);
 	},
 
 	G76 : function (data) {
