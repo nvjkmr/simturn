@@ -65,35 +65,86 @@ var validateTokens = function (tokens) {
 
 /* -------------------- BEGIN - G71 Processing -------------------- */
 
-var processG71 = function(tokensArray) {
+var processG71 = function(tokensArray, geometry) {
 	var processedArray = new Array();
 	return processedArray;
 };
 
-var insertG01 = function () {
-	// processedCodes.push({
-	// type:
-	// value:
-	// });
+var get_z_at_x = function (geometry, x) {
+	// geometry will be a set of points
 };
 
-var replaceBlock = function (startIndex, endIndex, replaceText) {
-	// body...
+var getGeometry = function (codeBlock) {
+	var geometry = new Array(), state;
+	
+	for (var i = 0; i < codeBlock.length; i++) {
+		// if (codeBlock[i].type == 'BD')
+		//		state = codeBlock[i].value;
+		// else if (codeBlock[i].type == 'PM') {
+		// 	if (state == null)
+		// 		throw "Error: Invalid geometry for the code "+ Env.state;
+		// 	if (!opCodeParamHandlers.hasOwnProperty(state))
+		// 		paramError(value[0]);
+		// 	opCodeParamHandlers[state](value);	// handle parameters
+		// } else if (type == 'EB') {
+		// 		if (state == null)
+		// 		throw "Error: Invalid geometry for the code "+ Env.state;
+		// 		if (!eobHandlers.hasOwnProperty(state))
+		// 			throw "Error: Property not found for state" + state;
+
+		// 		// check if input data is suffice
+		// 		if(!isDataSuffice(state, tempData))
+		// 			throw "Error: Data not sufficent for the state: "+ state;
+
+		// 		eobHandlers[state](tempData);	// handle end of block
+		// 		tempData = new Object();	// reset tempData
+
+		// 		if (Env.state == 'M30')		// if state M30 then return the points
+		// 			return points;			// and stop the program execution
+		// 	} else throw "Alert: Unknown token type found!"
+	}
+	
+	return geometry;
+};
+
+var replaceBlock = function (tokensArray, startIndex, endIndex, replaceArray) {
+	// use splice function to do the stuff...
 };
 
 var getLineBlock = function (tokens, line) {
 	var lineBlock = new Array();
 	for (var i = 0; i < tokens.length; i++) {
-		if (tokens[i].value == line) 
-			var record = true;
 		if (record) {
 			lineBlock.push(tokens[i]);
 			lineBlock[lineBlock.length - 1].index = i+1;
 			if (tokens[i+1].value[0] == 'N')
 				break;
 		}
+		if (tokens[i].value == line) 
+			var record = true;
 	}
 	return lineBlock;
 };
 
 /* --------------------  END - G71 Processing  -------------------- */
+
+/* -------------------------------------------------------------------------- */
+
+/* -------------------- BEGIN - G70 Processing -------------------- */
+
+var getParam = function (tokensArray, blockDesc, param) {
+	for (var i = 0; i < tokensArray.length; i++) {
+		if (tokensArray[i].value == blockDesc && 
+			tokensArray[i+1].value[0] == param) {
+			return tokensArray[i+1].slice(1);
+		}
+	}
+};
+
+var processG70 = function(tokensArray) {
+	var lineNum = getParam(tokensArray, 'G70', 'P');
+	codeBlock = getLineBlock(tokensArray, lineNum);
+	// remove G70 line & insert code block
+	// replaceBlock(tokensArray, .., .., codeBlock);	
+	return tokensArray
+};

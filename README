@@ -45,3 +45,20 @@ M06  -   TOOL CHANGE
 M08  -   COOLANT ON
 M09  -   COOLANT OFF
 M30  -   PROGRAM STOP
+
+**Usage Instructions
+
+1. Install required software and download the project code:
+	sudo apt-get install git nodejs npm
+	git clone https://github.com/VijayKumarHackr/TurningCenterSimulation.git
+	cd TurningCenterSimulation/src/js/node/		#important
+	npm install express ffi pako ref
+
+2. Since the project is in JavaScript, there's no need to compile.
+Just execute the script to launch the server:
+	node turningNode.js
+
+3. Run the examples:
+Open src/index.html in any modern web browser
+Click on "Browse G-code file" button.
+Open the TurningCenterSimulation/examples folder and select a file.

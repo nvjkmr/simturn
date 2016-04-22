@@ -167,16 +167,13 @@ var handleG75 = function (data, grooveStart) {
 	} else if (data.hasOwnProperty('x') && data.hasOwnProperty('z') 
 		&& data.hasOwnProperty('p') && data.hasOwnProperty('q') 
 		&& data.hasOwnProperty('f') && Env.firstLineG75 == true) {
-		// get the diameter of the cutting tool
-		// is equal to the groove width
-		// if not then throw error!
 
 		// addPoint(WORKPIECE_RADIUS, Env.z, data.f, Env.rpm, Env.dia);	// pre-peck
 
 		for (var cycle_z = data.q; cycle_z > data.z; cycle_z = cycle_z - data.q) {
 			var groove = new Object();
 			groove.depth = WORKPIECE_RADIUS;
-			groove.start_x = WORKPIECE_RADIUS;
+			groove.start_x = WORKPIECE_RADIUS + Env.dia;
 
 			for (var peckDepth = groove.depth - data.p; peckDepth > data.x; peckDepth = peckDepth - data.p) {
 				addPoint(peckDepth, Env.z, data.f, Env.rpm, Env.dia);	// peck
@@ -563,16 +560,11 @@ var eobHandlers = {
 	},
 
 	G70 : function (data) {
-		// body...
+		doNothing();
 	},
 
 	G71 : function (data) {
-		//if (data.hasOwnProperty('s')) {
-		//	Env.feed = data.f;
-		//	Env.rpm = data.s;
-		//} else if (data.hasOwnProperty('f')) {
-		//	Env.feed = data.f;
-		//} else // handle u and r
+		doNothing();
 	},
 
 	G72 : function (data) {
@@ -641,7 +633,7 @@ var getPoints = function (validTokens) {
 
 				// check if input data is suffice
 				if(!isDataSuffice(Env.state, tempData))
-					throw "Data not sufficent for the state: "+ Env.state;
+					throw "Error: Data not sufficent for the state: "+ Env.state;
 
 				eobHandlers[Env.state](tempData);	// handle end of block
 				tempData = new Object();	// reset tempData

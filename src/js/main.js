@@ -55,6 +55,21 @@ var WORKPIECE_RADIUS = 32;  // Radius of the workpiece which is being cut
 
 /* -------------------------------------------------------------------------- */
 
+/* -------------------- Tokenizer Globals BEGIN -------------------- */
+
+// Block descriptors (parameterized codes) which are supported by program
+var supportedCodes = new Array("G00", "G01", "G02", "G03", "G04", 
+                              "G28", "G71", "G72", "G75", "M03", 
+                              "M04", "M06", "G90", "G76", "G70"
+                              );
+
+// Codes which don't have parameters
+var controlCodes = new Array("G21", "G98", "M05", "M08", "M09", "M30");
+
+/* -------------------- Tokenizer Globals  END  -------------------- */
+
+/* -------------------------------------------------------------------------- */
+
 /* -------------------- MAIN PROGRAM BEGIN -------------------- */
 function startEval (input) {
   // Hide all previous errors...
@@ -68,17 +83,18 @@ function startEval (input) {
 
   // test getting line block
   // alert(JSON.stringify(getLineBlock(validTokens, 'N1')));
+  // return;
 
   // Get array of points
   var pointsArray = getPoints(validTokens);
 
-  var pointsArray = [{"x":0,"z":0,"feed":8000,"rpm":0,"dia":0.5},
-                    {"x":0,"z":0,"feed":8000,"rpm":0,"dia":0.5},
-                    {"x":40,"z":10,"feed":500,"rpm":0,"dia":4},
-                    {"x":40,"z":-15,"feed":300,"rpm":0,"dia":4},
-                    {"x":32,"z":-15.1,"feed":200,"rpm":1800,"dia":4},
-                    {"x":28,"z":-15,"feed":100,"rpm":1800,"dia":4},
-                    {"x":40,"z":-15.1,"feed":100,"rpm":1800,"dia":4}];
+  // var pointsArray = [{"x":0,"z":0,"feed":8000,"rpm":0,"dia":0.5},
+  //                   {"x":0,"z":0,"feed":8000,"rpm":0,"dia":0.5},
+  //                   {"x":40,"z":10,"feed":500,"rpm":0,"dia":4},
+  //                   {"x":40,"z":-15,"feed":300,"rpm":0,"dia":4},
+  //                   {"x":32,"z":-15.1,"feed":200,"rpm":1800,"dia":4},
+  //                   {"x":28,"z":-15,"feed":100,"rpm":1800,"dia":4},
+  //                   {"x":40,"z":-15.1,"feed":100,"rpm":1800,"dia":4}];
 
   // pointsArray = [];
   // for (i = 0; 40 > i; ++i) pointsArray.push({x:31-.25 * i, z:10, feed:8E3, rpm:1500, dia:4}), 
