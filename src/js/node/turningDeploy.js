@@ -2508,7 +2508,7 @@ document.getElementById("playButton").onclick = function() {
     var f = document.getElementById("playButton");
     Ja ? (Ka += Date.now(), f.value = "||", qa()) : (Ka -= Date.now(), f.value = " >")
 };
-
+var Nothing = null;
 // window.loadJob = function() {
     //Internal
     // window.addStep(8, 10, 2E4, 1500, 4);
