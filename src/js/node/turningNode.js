@@ -28,7 +28,7 @@ var server = http.createServer(
 var ptr = ref.refType(ref.types.void);
 var ptrptr = ref.refType(ptr);
 
-var libTurning = ffi.Library('turning', {
+var libTurning = ffi.Library('cgal', {
   'createWorkpiece':['pointer',[ 'pointer' ]],
   'modifyWorkpiece':['void',[ 'pointer', 'pointer' ]],
   'deleteWorkpiece':['void',['pointer']]
